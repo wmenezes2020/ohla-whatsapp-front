@@ -1,4 +1,4 @@
-import { HTMLAttributes } from 'react';
+import { HTMLAttributes, TdHTMLAttributes, ThHTMLAttributes } from 'react';
 import { cn } from '@/lib/utils';
 
 export function Table({ className, ...props }: HTMLAttributes<HTMLTableElement>) {
@@ -17,11 +17,11 @@ export function THead({ children }: { children: React.ReactNode }) {
   );
 }
 
-export function TH({ className, ...props }: HTMLAttributes<HTMLTableCellElement>) {
+export function TH({ className, ...props }: ThHTMLAttributes<HTMLTableCellElement>) {
   return <th className={cn('px-4 py-3 font-medium', className)} {...props} />;
 }
 
-export function TD({ className, ...props }: HTMLAttributes<HTMLTableCellElement>) {
+export function TD({ className, ...props }: TdHTMLAttributes<HTMLTableCellElement>) {
   return <td className={cn('px-4 py-3', className)} {...props} />;
 }
 

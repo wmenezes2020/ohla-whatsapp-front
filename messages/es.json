@@ -88,6 +88,15 @@
     "noData": "Sin datos en el periodo",
     "totalChannels": "Canales totales"
   },
+  "table": {
+    "search": "Buscar...",
+    "perPage": "Por página",
+    "of": "de",
+    "showing": "Mostrando",
+    "noResults": "Sin resultados",
+    "prev": "Anterior",
+    "next": "Siguiente"
+  },
   "common": {
     "loading": "Cargando...",
     "save": "Guardar",

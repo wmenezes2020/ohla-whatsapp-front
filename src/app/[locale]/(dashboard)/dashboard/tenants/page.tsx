@@ -7,11 +7,10 @@ import { toast } from 'sonner';
 import { Plus, Check, Ban } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Table, THead, TH, TD, TR } from '@/components/ui/table';
+import { DataTable, type Column } from '@/components/ui/data-table';
 import { api, apiError } from '@/lib/api';
 import type { TenantRow } from '@/lib/types';
 
@@ -66,52 +65,61 @@ export default function TenantsPage() {
         }
       />
 
-      <Card>
-        {rows.length === 0 ? (
-          <div className="p-10 text-center text-sm text-slate-400">{t('noTenants')}</div>
-        ) : (
-          <Table>
-            <THead>
-              <tr>
-                <TH>{tc('name')}</TH>
-                <TH>{t('users')}</TH>
-                <TH>{tc('status')}</TH>
-                <TH className="text-right">{tc('actions')}</TH>
-              </tr>
-            </THead>
-            <tbody>
-              {rows.map((tn) => (
-                <TR key={tn.id}>
-                  <TD>
-                    <p className="font-medium text-slate-800">{tn.name}</p>
-                    <p className="text-xs text-slate-400">{tn.slug}</p>
-                  </TD>
-                  <TD>{tn.userCount}</TD>
-                  <TD>
-                    <Badge tone={tn.status === 'ACTIVE' ? 'success' : 'danger'}>{tn.status}</Badge>
-                  </TD>
-                  <TD className="text-right">
-                    {tn.status !== 'ACTIVE' ? (
-                      <Button size="sm" variant="ghost" onClick={() => setStatus(tn.id, 'activate')}>
-                        <Check className="h-4 w-4 text-brand-600" /> {t('activate')}
-                      </Button>
-                    ) : (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-red-600 hover:bg-red-50"
-                        onClick={() => setStatus(tn.id, 'suspend')}
-                      >
-                        <Ban className="h-4 w-4" /> {t('suspend')}
-                      </Button>
-                    )}
-                  </TD>
-                </TR>
-              ))}
-            </tbody>
-          </Table>
-        )}
-      </Card>
+      <DataTable
+        data={rows}
+        rowKey={(tn) => tn.id}
+        emptyLabel={t('noTenants')}
+        columns={[
+          {
+            key: 'name',
+            header: tc('name'),
+            sortable: true,
+            searchable: true,
+            accessor: (tn) => `${tn.name} ${tn.slug}`,
+            render: (tn) => (
+              <div>
+                <p className="font-medium text-slate-800">{tn.name}</p>
+                <p className="text-xs text-slate-400">{tn.slug}</p>
+              </div>
+            ),
+          },
+          {
+            key: 'userCount',
+            header: t('users'),
+            sortable: true,
+            accessor: (tn) => tn.userCount,
+          },
+          {
+            key: 'status',
+            header: tc('status'),
+            sortable: true,
+            accessor: (tn) => tn.status,
+            render: (tn) => (
+              <Badge tone={tn.status === 'ACTIVE' ? 'success' : 'danger'}>{tn.status}</Badge>
+            ),
+          },
+          {
+            key: 'actions',
+            header: tc('actions'),
+            align: 'right',
+            render: (tn) =>
+              tn.status !== 'ACTIVE' ? (
+                <Button size="sm" variant="ghost" onClick={() => setStatus(tn.id, 'activate')}>
+                  <Check className="h-4 w-4 text-brand-600" /> {t('activate')}
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-red-600 hover:bg-red-50"
+                  onClick={() => setStatus(tn.id, 'suspend')}
+                >
+                  <Ban className="h-4 w-4" /> {t('suspend')}
+                </Button>
+              ),
+          },
+        ] as Column<TenantRow>[]}
+      />
 
       <Dialog open={open} onClose={() => setOpen(false)} title={t('create')}>
         <div className="space-y-4">

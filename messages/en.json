@@ -88,6 +88,15 @@
     "noData": "No data in the period",
     "totalChannels": "Total channels"
   },
+  "table": {
+    "search": "Search...",
+    "perPage": "Per page",
+    "of": "of",
+    "showing": "Showing",
+    "noResults": "No results",
+    "prev": "Previous",
+    "next": "Next"
+  },
   "common": {
     "loading": "Loading...",
     "save": "Save",

@@ -15,10 +15,9 @@ import {
 } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { Table, THead, TH, TD, TR } from '@/components/ui/table';
+import { DataTable, type Column } from '@/components/ui/data-table';
 import { ChannelStatusBadge } from '@/components/status-badges';
 import { api, apiError } from '@/lib/api';
 import { useRealtime } from '@/lib/socket';
@@ -141,86 +140,97 @@ export default function ChannelsPage() {
         }
       />
 
-      <Card>
-        {rows.length === 0 ? (
-          <div className="p-10 text-center text-sm text-slate-400">{t('noChannels')}</div>
-        ) : (
-          <Table>
-            <THead>
-              <tr>
-                <TH>{tc('name')}</TH>
-                <TH>{tc('status')}</TH>
-                <TH>{t('phone')}</TH>
-                <TH>{t('rateLimit')}</TH>
-                <TH className="text-right">{tc('actions')}</TH>
-              </tr>
-            </THead>
-            <tbody>
-              {rows.map((c) => (
-                <TR key={c.id}>
-                  <TD>
-                    <p className="font-medium text-slate-800">{c.name}</p>
-                    <p className="text-xs text-slate-400">{c.instanceName}</p>
-                  </TD>
-                  <TD>
-                    <ChannelStatusBadge status={c.status} />
-                  </TD>
-                  <TD>
-                    {c.phoneNumber ? (
-                      <span className="flex items-center gap-1 text-slate-700">
-                        <Smartphone className="h-3.5 w-3.5 text-slate-400" />+{c.phoneNumber}
-                      </span>
-                    ) : (
-                      '—'
-                    )}
-                  </TD>
-                  <TD>
-                    <span className="text-slate-700">{c.rateLimitPerMinute}/min</span>
-                    {c.rateLimitPerDay ? (
-                      <span className="block text-xs text-slate-400">{c.rateLimitPerDay}/día</span>
-                    ) : null}
-                  </TD>
-                  <TD>
-                    <div className="flex items-center justify-end gap-1">
-                      {c.status !== 'CONNECTED' && (
-                        <Button size="sm" variant="outline" onClick={() => openQr(c)}>
-                          <QrCode className="h-4 w-4" /> {t('connect')}
-                        </Button>
-                      )}
-                      {c.status === 'CONNECTED' && (
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => action(c.id, 'logout')}
-                          title={t('disconnect')}
-                        >
-                          <Power className="h-4 w-4" />
-                        </Button>
-                      )}
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => action(c.id, 'restart')}
-                        title={t('restart')}
-                      >
-                        <RefreshCw className="h-4 w-4" />
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        onClick={() => remove(c.id)}
-                        className="text-red-600 hover:bg-red-50"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TD>
-                </TR>
-              ))}
-            </tbody>
-          </Table>
-        )}
-      </Card>
+      <DataTable
+        data={rows}
+        rowKey={(c) => c.id}
+        emptyLabel={t('noChannels')}
+        columns={[
+          {
+            key: 'name',
+            header: tc('name'),
+            sortable: true,
+            searchable: true,
+            accessor: (c) => `${c.name} ${c.instanceName} ${c.phoneNumber || ''}`,
+            render: (c) => (
+              <div>
+                <p className="font-medium text-slate-800">{c.name}</p>
+                <p className="text-xs text-slate-400">{c.instanceName}</p>
+              </div>
+            ),
+          },
+          {
+            key: 'status',
+            header: tc('status'),
+            sortable: true,
+            accessor: (c) => c.status,
+            render: (c) => <ChannelStatusBadge status={c.status} />,
+          },
+          {
+            key: 'phone',
+            header: t('phone'),
+            sortable: true,
+            searchable: true,
+            accessor: (c) => c.phoneNumber || '',
+            render: (c) =>
+              c.phoneNumber ? (
+                <span className="flex items-center gap-1 text-slate-700">
+                  <Smartphone className="h-3.5 w-3.5 text-slate-400" />+{c.phoneNumber}
+                </span>
+              ) : (
+                '—'
+              ),
+          },
+          {
+            key: 'rate',
+            header: t('rateLimit'),
+            sortable: true,
+            accessor: (c) => c.rateLimitPerMinute,
+            render: (c) => (
+              <>
+                <span className="text-slate-700">{c.rateLimitPerMinute}/min</span>
+                {c.rateLimitPerDay ? (
+                  <span className="block text-xs text-slate-400">{c.rateLimitPerDay}/día</span>
+                ) : null}
+              </>
+            ),
+          },
+          {
+            key: 'actions',
+            header: tc('actions'),
+            align: 'right',
+            render: (c) => (
+              <div className="flex items-center justify-end gap-1">
+                {c.status !== 'CONNECTED' && (
+                  <Button size="sm" variant="outline" onClick={() => openQr(c)}>
+                    <QrCode className="h-4 w-4" /> {t('connect')}
+                  </Button>
+                )}
+                {c.status === 'CONNECTED' && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => action(c.id, 'logout')}
+                    title={t('disconnect')}
+                  >
+                    <Power className="h-4 w-4" />
+                  </Button>
+                )}
+                <Button size="sm" variant="ghost" onClick={() => action(c.id, 'restart')} title={t('restart')}>
+                  <RefreshCw className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => remove(c.id)}
+                  className="text-red-600 hover:bg-red-50"
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ),
+          },
+        ] as Column<Channel>[]}
+      />
 
       {/* Create dialog */}
       <Dialog open={createOpen} onClose={() => setCreateOpen(false)} title={t('create')}>

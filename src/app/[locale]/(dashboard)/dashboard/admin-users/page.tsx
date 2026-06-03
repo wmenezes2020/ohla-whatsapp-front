@@ -1,17 +1,16 @@
 'use client';
 
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { Plus, Check, Ban, Search } from 'lucide-react';
+import { Plus, Check, Ban } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Dialog } from '@/components/ui/dialog';
 import { Input, Select } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Table, THead, TH, TD, TR } from '@/components/ui/table';
+import { DataTable, type Column } from '@/components/ui/data-table';
 import { UserStatusBadge } from '@/components/status-badges';
 import { api, apiError } from '@/lib/api';
 import type { AdminUserRow, TenantRow } from '@/lib/types';
@@ -23,7 +22,6 @@ export default function AdminUsersPage() {
   const tm = useTranslations('metrics');
   const qc = useQueryClient();
 
-  const [search, setSearch] = useState('');
   const [tenantFilter, setTenantFilter] = useState('');
   const [open, setOpen] = useState(false);
   const [form, setForm] = useState({
@@ -40,13 +38,12 @@ export default function AdminUsersPage() {
   });
 
   const users = useQuery({
-    queryKey: ['admin-users', search, tenantFilter],
+    queryKey: ['admin-users'],
     queryFn: async () =>
-      (
-        await api.get('/admin/users', {
-          params: { q: search || undefined, tenantId: tenantFilter || undefined, pageSize: 100 },
-        })
-      ).data as { items: AdminUserRow[]; total: number },
+      (await api.get('/admin/users', { params: { pageSize: 1000 } })).data as {
+        items: AdminUserRow[];
+        total: number;
+      },
   });
 
   const createMut = useMutation({
@@ -65,14 +62,7 @@ export default function AdminUsersPage() {
       setOpen(false);
       setForm({ fullName: '', email: '', password: '', role: 'OPERATOR', tenantId: '' });
     },
-    onError: (e) => {
-      const { code } = apiError(e);
-      const map: Record<string, string> = {
-        'auth.email_taken': tc('error'),
-        'user.tenant_required': tm('company'),
-      };
-      toast.error(map[code || ''] || tc('error'));
-    },
+    onError: (e) => toast.error(apiError(e).message),
   });
 
   async function setStatus(id: string, path: 'activate' | 'suspend') {
@@ -85,7 +75,11 @@ export default function AdminUsersPage() {
   }
 
   const isSuper = form.role === 'SUPER_ADMIN';
-  const rows = users.data?.items || [];
+  const allRows = users.data?.items || [];
+  const rows = useMemo(
+    () => (tenantFilter ? allRows.filter((u) => u.tenantId === tenantFilter) : allRows),
+    [allRows, tenantFilter],
+  );
 
   return (
     <div>
@@ -99,82 +93,83 @@ export default function AdminUsersPage() {
         }
       />
 
-      <div className="mb-4 flex flex-wrap items-center gap-3">
-        <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
-          <input
-            className="input-base w-64 pl-9"
-            placeholder={tc('search')}
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-          />
-        </div>
-        <Select value={tenantFilter} onChange={(e) => setTenantFilter(e.target.value)} className="w-52">
-          <option value="">{tm('allCompanies')}</option>
-          {(tenants.data || []).map((tn) => (
-            <option key={tn.id} value={tn.id}>
-              {tn.name}
-            </option>
-          ))}
-        </Select>
-      </div>
-
-      <Card>
-        {rows.length === 0 ? (
-          <div className="p-10 text-center text-sm text-slate-400">{t('noUsers')}</div>
-        ) : (
-          <Table>
-            <THead>
-              <tr>
-                <TH>{tc('name')}</TH>
-                <TH>{tm('company')}</TH>
-                <TH>{t('role')}</TH>
-                <TH>{tc('status')}</TH>
-                <TH className="text-right">{tc('actions')}</TH>
-              </tr>
-            </THead>
-            <tbody>
-              {rows.map((u) => (
-                <TR key={u.id}>
-                  <TD>
-                    <p className="font-medium text-slate-800">{u.fullName}</p>
-                    <p className="text-xs text-slate-400">{u.email}</p>
-                  </TD>
-                  <TD className="text-slate-600">
-                    {u.role === 'SUPER_ADMIN' ? (
-                      <Badge tone="warning">Super Admin</Badge>
-                    ) : (
-                      u.tenantName || '—'
-                    )}
-                  </TD>
-                  <TD>
-                    <Badge tone="info">{tr(u.role)}</Badge>
-                  </TD>
-                  <TD>
-                    <UserStatusBadge status={u.status} />
-                  </TD>
-                  <TD className="text-right">
-                    {u.status !== 'ACTIVE' ? (
-                      <Button size="sm" variant="ghost" onClick={() => setStatus(u.id, 'activate')}>
-                        <Check className="h-4 w-4 text-brand-600" /> {t('activate')}
-                      </Button>
-                    ) : (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-red-600 hover:bg-red-50"
-                        onClick={() => setStatus(u.id, 'suspend')}
-                      >
-                        <Ban className="h-4 w-4" /> {t('suspend')}
-                      </Button>
-                    )}
-                  </TD>
-                </TR>
-              ))}
-            </tbody>
-          </Table>
-        )}
-      </Card>
+      <DataTable
+        data={rows}
+        rowKey={(u) => u.id}
+        emptyLabel={t('noUsers')}
+        toolbar={
+          <Select value={tenantFilter} onChange={(e) => setTenantFilter(e.target.value)} className="w-52">
+            <option value="">{tm('allCompanies')}</option>
+            {(tenants.data || []).map((tn) => (
+              <option key={tn.id} value={tn.id}>
+                {tn.name}
+              </option>
+            ))}
+          </Select>
+        }
+        columns={[
+          {
+            key: 'name',
+            header: tc('name'),
+            sortable: true,
+            searchable: true,
+            accessor: (u) => `${u.fullName} ${u.email}`,
+            render: (u) => (
+              <div>
+                <p className="font-medium text-slate-800">{u.fullName}</p>
+                <p className="text-xs text-slate-400">{u.email}</p>
+              </div>
+            ),
+          },
+          {
+            key: 'company',
+            header: tm('company'),
+            sortable: true,
+            searchable: true,
+            accessor: (u) => (u.role === 'SUPER_ADMIN' ? 'Super Admin' : u.tenantName || ''),
+            render: (u) =>
+              u.role === 'SUPER_ADMIN' ? (
+                <Badge tone="warning">Super Admin</Badge>
+              ) : (
+                <span className="text-slate-600">{u.tenantName || '—'}</span>
+              ),
+          },
+          {
+            key: 'role',
+            header: t('role'),
+            sortable: true,
+            accessor: (u) => u.role,
+            render: (u) => <Badge tone="info">{tr(u.role)}</Badge>,
+          },
+          {
+            key: 'status',
+            header: tc('status'),
+            sortable: true,
+            accessor: (u) => u.status,
+            render: (u) => <UserStatusBadge status={u.status} />,
+          },
+          {
+            key: 'actions',
+            header: tc('actions'),
+            align: 'right',
+            render: (u) =>
+              u.status !== 'ACTIVE' ? (
+                <Button size="sm" variant="ghost" onClick={() => setStatus(u.id, 'activate')}>
+                  <Check className="h-4 w-4 text-brand-600" /> {t('activate')}
+                </Button>
+              ) : (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-red-600 hover:bg-red-50"
+                  onClick={() => setStatus(u.id, 'suspend')}
+                >
+                  <Ban className="h-4 w-4" /> {t('suspend')}
+                </Button>
+              ),
+          },
+        ] as Column<AdminUserRow>[]}
+      />
 
       <Dialog open={open} onClose={() => setOpen(false)} title={t('create')}>
         <div className="space-y-4">

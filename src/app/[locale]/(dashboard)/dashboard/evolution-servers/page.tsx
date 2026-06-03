@@ -7,11 +7,10 @@ import { toast } from 'sonner';
 import { Plus, Trash2, Wifi } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Table, THead, TH, TD, TR } from '@/components/ui/table';
+import { DataTable, type Column } from '@/components/ui/data-table';
 import { api, apiError } from '@/lib/api';
 import type { EvolutionServer } from '@/lib/types';
 
@@ -71,50 +70,56 @@ export default function EvolutionServersPage() {
         }
       />
 
-      <Card>
-        {rows.length === 0 ? (
-          <div className="p-10 text-center text-sm text-slate-400">{t('noServers')}</div>
-        ) : (
-          <Table>
-            <THead>
-              <tr>
-                <TH>{tc('name')}</TH>
-                <TH>{t('baseUrl')}</TH>
-                <TH>{tc('status')}</TH>
-                <TH className="text-right">{tc('actions')}</TH>
-              </tr>
-            </THead>
-            <tbody>
-              {rows.map((s) => (
-                <TR key={s.id}>
-                  <TD className="font-medium text-slate-800">{s.name}</TD>
-                  <TD className="text-slate-500">{s.baseUrl}</TD>
-                  <TD>
-                    <Badge tone={s.enabled ? 'success' : 'neutral'}>
-                      {s.enabled ? 'ON' : 'OFF'}
-                    </Badge>
-                  </TD>
-                  <TD>
-                    <div className="flex items-center justify-end gap-1">
-                      <Button size="sm" variant="outline" onClick={() => test(s.id)}>
-                        <Wifi className="h-4 w-4" /> {t('test')}
-                      </Button>
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-red-600 hover:bg-red-50"
-                        onClick={() => remove(s.id)}
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </TD>
-                </TR>
-              ))}
-            </tbody>
-          </Table>
-        )}
-      </Card>
+      <DataTable
+        data={rows}
+        rowKey={(s) => s.id}
+        emptyLabel={t('noServers')}
+        columns={[
+          {
+            key: 'name',
+            header: tc('name'),
+            sortable: true,
+            searchable: true,
+            accessor: (s) => s.name,
+            render: (s) => <span className="font-medium text-slate-800">{s.name}</span>,
+          },
+          {
+            key: 'baseUrl',
+            header: t('baseUrl'),
+            sortable: true,
+            searchable: true,
+            accessor: (s) => s.baseUrl,
+            render: (s) => <span className="text-slate-500">{s.baseUrl}</span>,
+          },
+          {
+            key: 'enabled',
+            header: tc('status'),
+            sortable: true,
+            accessor: (s) => (s.enabled ? 1 : 0),
+            render: (s) => <Badge tone={s.enabled ? 'success' : 'neutral'}>{s.enabled ? 'ON' : 'OFF'}</Badge>,
+          },
+          {
+            key: 'actions',
+            header: tc('actions'),
+            align: 'right',
+            render: (s) => (
+              <div className="flex items-center justify-end gap-1">
+                <Button size="sm" variant="outline" onClick={() => test(s.id)}>
+                  <Wifi className="h-4 w-4" /> {t('test')}
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-red-600 hover:bg-red-50"
+                  onClick={() => remove(s.id)}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
+            ),
+          },
+        ] as Column<EvolutionServer>[]}
+      />
 
       <Dialog open={open} onClose={() => setOpen(false)} title={t('create')}>
         <div className="space-y-4">

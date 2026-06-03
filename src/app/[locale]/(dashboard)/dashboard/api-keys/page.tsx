@@ -7,11 +7,10 @@ import { toast } from 'sonner';
 import { Plus, Copy, Check, Ban } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
-import { Card } from '@/components/ui/card';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Table, THead, TH, TD, TR } from '@/components/ui/table';
+import { DataTable, type Column } from '@/components/ui/data-table';
 import { IntegrationDocs } from '@/components/integration-docs';
 import { api, apiError } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
@@ -75,51 +74,66 @@ export default function ApiKeysPage() {
         }
       />
 
-      <Card>
-        {rows.length === 0 ? (
-          <div className="p-10 text-center text-sm text-slate-400">{t('noKeys')}</div>
-        ) : (
-          <Table>
-            <THead>
-              <tr>
-                <TH>{tc('name')}</TH>
-                <TH>{t('prefix')}</TH>
-                <TH>{tc('status')}</TH>
-                <TH>{t('lastUsed')}</TH>
-                <TH className="text-right">{tc('actions')}</TH>
-              </tr>
-            </THead>
-            <tbody>
-              {rows.map((k) => (
-                <TR key={k.id}>
-                  <TD className="font-medium text-slate-800">{k.name}</TD>
-                  <TD>
-                    <code className="rounded bg-slate-100 px-2 py-0.5 text-xs">{k.prefix}…</code>
-                  </TD>
-                  <TD>
-                    <Badge tone={k.status === 'ACTIVE' ? 'success' : 'danger'}>{k.status}</Badge>
-                  </TD>
-                  <TD className="text-slate-500">
-                    {k.lastUsedAt ? formatDate(k.lastUsedAt, locale) : t('never')}
-                  </TD>
-                  <TD className="text-right">
-                    {k.status === 'ACTIVE' && (
-                      <Button
-                        size="sm"
-                        variant="ghost"
-                        className="text-red-600 hover:bg-red-50"
-                        onClick={() => revoke(k.id)}
-                      >
-                        <Ban className="h-4 w-4" /> {t('revoke')}
-                      </Button>
-                    )}
-                  </TD>
-                </TR>
-              ))}
-            </tbody>
-          </Table>
-        )}
-      </Card>
+      <DataTable
+        data={rows}
+        rowKey={(k) => k.id}
+        emptyLabel={t('noKeys')}
+        columns={[
+          {
+            key: 'name',
+            header: tc('name'),
+            sortable: true,
+            searchable: true,
+            accessor: (k) => k.name,
+            render: (k) => <span className="font-medium text-slate-800">{k.name}</span>,
+          },
+          {
+            key: 'prefix',
+            header: t('prefix'),
+            searchable: true,
+            accessor: (k) => k.prefix,
+            render: (k) => (
+              <code className="rounded bg-slate-100 px-2 py-0.5 text-xs">{k.prefix}…</code>
+            ),
+          },
+          {
+            key: 'status',
+            header: tc('status'),
+            sortable: true,
+            accessor: (k) => k.status,
+            render: (k) => (
+              <Badge tone={k.status === 'ACTIVE' ? 'success' : 'danger'}>{k.status}</Badge>
+            ),
+          },
+          {
+            key: 'lastUsed',
+            header: t('lastUsed'),
+            sortable: true,
+            accessor: (k) => k.lastUsedAt ?? '',
+            render: (k) => (
+              <span className="text-slate-500">
+                {k.lastUsedAt ? formatDate(k.lastUsedAt, locale) : t('never')}
+              </span>
+            ),
+          },
+          {
+            key: 'actions',
+            header: tc('actions'),
+            align: 'right',
+            render: (k) =>
+              k.status === 'ACTIVE' && (
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-red-600 hover:bg-red-50"
+                  onClick={() => revoke(k.id)}
+                >
+                  <Ban className="h-4 w-4" /> {t('revoke')}
+                </Button>
+              ),
+          },
+        ] as Column<ApiKey>[]}
+      />
 
       {/* Integration documentation */}
       <IntegrationDocs />

@@ -3,18 +3,17 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocale, useTranslations } from 'next-intl';
-import { ChevronLeft, ChevronRight, Eye } from 'lucide-react';
+import { Eye } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
-import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/input';
 import { Dialog } from '@/components/ui/dialog';
-import { Table, THead, TH, TD, TR } from '@/components/ui/table';
+import { DataTable, type Column } from '@/components/ui/data-table';
 import { MessageStatusBadge } from '@/components/status-badges';
 import { api } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import { useRealtime } from '@/lib/socket';
-import type { MessageEventRow, MessageRow } from '@/lib/types';
+import type { Channel, MessageEventRow, MessageRow } from '@/lib/types';
 
 const STATUSES = ['QUEUED', 'SENDING', 'SENT', 'DELIVERED', 'READ', 'FAILED'];
 
@@ -25,18 +24,36 @@ export default function ReportsPage() {
   const locale = useLocale();
   const qc = useQueryClient();
 
-  const [status, setStatus] = useState('');
   const [page, setPage] = useState(1);
+  const [pageSize, setPageSize] = useState(25);
+  const [sortBy, setSortBy] = useState<'createdAt' | 'status' | 'toNumber'>('createdAt');
+  const [sortDir, setSortDir] = useState<'ASC' | 'DESC'>('DESC');
+  const [search, setSearch] = useState('');
+  const [status, setStatus] = useState('');
+  const [channelId, setChannelId] = useState('');
   const [detailId, setDetailId] = useState<string | null>(null);
 
+  const channels = useQuery({
+    queryKey: ['channels'],
+    queryFn: async () => (await api.get<Channel[]>('/channels')).data,
+  });
+
   const list = useQuery({
-    queryKey: ['messages', status, page],
+    queryKey: ['messages', page, pageSize, sortBy, sortDir, search, status, channelId],
     queryFn: async () =>
       (
         await api.get('/reports/messages', {
-          params: { status: status || undefined, page, pageSize: 20 },
+          params: {
+            page,
+            pageSize,
+            sortBy,
+            sortDir,
+            search: search || undefined,
+            status: status || undefined,
+            channelId: channelId || undefined,
+          },
         })
-      ).data as { items: MessageRow[]; total: number; page: number; totalPages: number },
+      ).data as { items: MessageRow[]; total: number; page: number },
   });
 
   const detail = useQuery({
@@ -53,88 +70,105 @@ export default function ReportsPage() {
     'message.status': () => qc.invalidateQueries({ queryKey: ['messages'] }),
   });
 
-  const data = list.data;
-  const rows = data?.items || [];
-
   return (
     <div>
-      <PageHeader
-        title={t('title')}
-        subtitle={t('subtitle')}
-        action={
-          <Select
-            value={status}
-            onChange={(e) => {
-              setStatus(e.target.value);
-              setPage(1);
-            }}
-            className="w-44"
-          >
-            <option value="">{tc('all')}</option>
-            {STATUSES.map((s) => (
-              <option key={s} value={s}>
-                {s}
-              </option>
-            ))}
-          </Select>
-        }
-      />
+      <PageHeader title={t('title')} subtitle={t('subtitle')} />
 
-      <Card>
-        {rows.length === 0 ? (
-          <div className="p-10 text-center text-sm text-slate-400">{t('noMessages')}</div>
-        ) : (
-          <Table>
-            <THead>
-              <tr>
-                <TH>{t('to')}</TH>
-                <TH>{t('type')}</TH>
-                <TH>{tc('status')}</TH>
-                <TH>{t('externalId')}</TH>
-                <TH>{t('date')}</TH>
-                <TH className="text-right">{tc('actions')}</TH>
-              </tr>
-            </THead>
-            <tbody>
-              {rows.map((m) => (
-                <TR key={m.id}>
-                  <TD className="font-medium text-slate-800">+{m.toNumber}</TD>
-                  <TD>{tType(m.type)}</TD>
-                  <TD>
-                    <MessageStatusBadge status={m.status} />
-                  </TD>
-                  <TD className="text-slate-500">{m.externalId || '—'}</TD>
-                  <TD className="text-slate-500">{formatDate(m.createdAt, locale)}</TD>
-                  <TD className="text-right">
-                    <Button size="sm" variant="ghost" onClick={() => setDetailId(m.id)}>
-                      <Eye className="h-4 w-4" />
-                    </Button>
-                  </TD>
-                </TR>
+      <DataTable
+        data={list.data?.items || []}
+        rowKey={(m) => m.id}
+        emptyLabel={t('noMessages')}
+        server={{
+          total: list.data?.total || 0,
+          page,
+          pageSize,
+          sortBy,
+          sortDir,
+          search,
+          loading: list.isFetching,
+          onChange: (s) => {
+            setPage(s.page);
+            setPageSize(s.pageSize);
+            setSortBy((s.sortBy as any) || 'createdAt');
+            setSortDir(s.sortDir || 'DESC');
+            setSearch(s.search || '');
+          },
+        }}
+        toolbar={
+          <>
+            <Select
+              value={status}
+              onChange={(e) => {
+                setStatus(e.target.value);
+                setPage(1);
+              }}
+              className="w-44"
+            >
+              <option value="">{tc('all')}</option>
+              {STATUSES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
               ))}
-            </tbody>
-          </Table>
-        )}
-      </Card>
-
-      {data && data.totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-end gap-2 text-sm text-slate-500">
-          <span>
-            {t('page')} {data.page} {t('of')} {data.totalPages}
-          </span>
-          <Button size="icon" variant="outline" disabled={page <= 1} onClick={() => setPage((p) => p - 1)}>
-            <ChevronLeft className="h-4 w-4" />
-          </Button>
-          <Button
-            size="icon"
-            variant="outline"
-            disabled={page >= data.totalPages}
-            onClick={() => setPage((p) => p + 1)}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </Button>
-        </div>
-      )}
+            </Select>
+            <Select
+              value={channelId}
+              onChange={(e) => {
+                setChannelId(e.target.value);
+                setPage(1);
+              }}
+              className="w-48"
+            >
+              <option value="">{t('channel')}</option>
+              {(channels.data || []).map((c) => (
+                <option key={c.id} value={c.id}>
+                  {c.name}
+                </option>
+              ))}
+            </Select>
+          </>
+        }
+        columns={[
+          {
+            key: 'toNumber',
+            header: t('to'),
+            sortable: true,
+            render: (m) => <span className="font-medium text-slate-800">+{m.toNumber}</span>,
+          },
+          {
+            key: 'type',
+            header: t('type'),
+            render: (m) => tType(m.type),
+          },
+          {
+            key: 'status',
+            header: tc('status'),
+            sortable: true,
+            render: (m) => <MessageStatusBadge status={m.status} />,
+          },
+          {
+            key: 'externalId',
+            header: t('externalId'),
+            render: (m) => <span className="text-slate-500">{m.externalId || '—'}</span>,
+          },
+          {
+            key: 'createdAt',
+            header: t('date'),
+            sortable: true,
+            render: (m) => <span className="text-slate-500">{formatDate(m.createdAt, locale)}</span>,
+          },
+          {
+            key: 'actions',
+            header: tc('actions'),
+            align: 'right',
+            render: (m) => (
+              <Button size="sm" variant="ghost" onClick={() => setDetailId(m.id)}>
+                <Eye className="h-4 w-4" />
+              </Button>
+            ),
+          },
+        ] as Column<MessageRow>[]}
+      />
 
       <Dialog open={!!detailId} onClose={() => setDetailId(null)} title={t('detail')}>
         {detail.data && (
@@ -167,9 +201,7 @@ export default function ReportsPage() {
                     <span className="absolute -left-[1.30rem] top-1 h-2.5 w-2.5 rounded-full bg-brand-500" />
                     <div className="flex items-center justify-between">
                       <MessageStatusBadge status={ev.status} />
-                      <span className="text-xs text-slate-400">
-                        {formatDate(ev.createdAt, locale)}
-                      </span>
+                      <span className="text-xs text-slate-400">{formatDate(ev.createdAt, locale)}</span>
                     </div>
                   </li>
                 ))}
