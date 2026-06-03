@@ -85,7 +85,7 @@ export default function ApiKeysPage() {
             sortable: true,
             searchable: true,
             accessor: (k) => k.name,
-            render: (k) => <span className="font-medium text-slate-800">{k.name}</span>,
+            render: (k) => <span className="font-medium text-foreground">{k.name}</span>,
           },
           {
             key: 'prefix',
@@ -93,7 +93,7 @@ export default function ApiKeysPage() {
             searchable: true,
             accessor: (k) => k.prefix,
             render: (k) => (
-              <code className="rounded bg-slate-100 px-2 py-0.5 text-xs">{k.prefix}…</code>
+              <code className="rounded bg-muted px-2 py-0.5 text-xs">{k.prefix}…</code>
             ),
           },
           {
@@ -111,7 +111,7 @@ export default function ApiKeysPage() {
             sortable: true,
             accessor: (k) => k.lastUsedAt ?? '',
             render: (k) => (
-              <span className="text-slate-500">
+              <span className="text-muted-foreground">
                 {k.lastUsedAt ? formatDate(k.lastUsedAt, locale) : t('never')}
               </span>
             ),
@@ -125,7 +125,7 @@ export default function ApiKeysPage() {
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="text-red-600 hover:bg-red-50"
+                  className="text-red-600 hover:bg-red-500/10"
                   onClick={() => revoke(k.id)}
                 >
                   <Ban className="h-4 w-4" /> {t('revoke')}
@@ -161,7 +161,7 @@ export default function ApiKeysPage() {
       {/* Secret reveal dialog */}
       <Dialog open={!!secret} onClose={() => setSecret(null)} title={t('secretTitle')}>
         <div className="space-y-4">
-          <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
+          <div className="rounded-lg border border-amber-300/40 bg-amber-50 p-3 text-sm text-amber-800 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-300">
             {t('secretWarning')}
           </div>
           <div className="flex items-center gap-2">

@@ -283,7 +283,12 @@
     "passwordChanged": "Contraseña actualizada",
     "emailTaken": "El correo ya está registrado",
     "currentPasswordInvalid": "La contraseña actual es incorrecta",
-    "noChanges": "No hay cambios para guardar"
+    "noChanges": "No hay cambios para guardar",
+    "appearance": "Apariencia",
+    "theme": "Tema",
+    "themeLight": "Claro",
+    "themeDark": "Oscuro",
+    "themeSystem": "Sistema"
   },
   "roles": {
     "SUPER_ADMIN": "Super Admin",

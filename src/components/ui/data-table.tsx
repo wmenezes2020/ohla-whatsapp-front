@@ -184,7 +184,7 @@ export function DataTable<T>({
       {/* Toolbar */}
       <div className="flex flex-wrap items-center gap-3">
         <div className="relative">
-          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+          <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
             value={searchInput}
             onChange={(e) => onSearchChange(e.target.value)}
@@ -215,7 +215,7 @@ export function DataTable<T>({
                           <ArrowDown className="h-3.5 w-3.5 text-brand-600" />
                         )
                       ) : (
-                        <ChevronsUpDown className="h-3.5 w-3.5 text-slate-300" />
+                        <ChevronsUpDown className="h-3.5 w-3.5 text-muted-foreground/50" />
                       ))}
                   </span>
                 </TH>
@@ -225,7 +225,7 @@ export function DataTable<T>({
           <tbody>
             {pageRows.length === 0 ? (
               <tr>
-                <TD colSpan={columns.length} className="py-10 text-center text-sm text-slate-400">
+                <TD colSpan={columns.length} className="py-10 text-center text-sm text-muted-foreground">
                   {emptyLabel || t('noResults')}
                 </TD>
               </tr>
@@ -245,13 +245,13 @@ export function DataTable<T>({
       </div>
 
       {/* Footer */}
-      <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-slate-500">
+      <div className="flex flex-wrap items-center justify-between gap-3 text-sm text-muted-foreground">
         <div className="flex items-center gap-2">
           <span>{t('perPage')}:</span>
           <select
             value={curSize}
             onChange={(e) => setSize(Number(e.target.value))}
-            className="rounded-lg border border-slate-300 bg-white px-2 py-1 text-sm outline-none focus:border-brand-500"
+            className="rounded-lg border border-input bg-card px-2 py-1 text-sm outline-none focus:border-brand-500"
           >
             {pageSizeOptions.map((o) => (
               <option key={o} value={o}>

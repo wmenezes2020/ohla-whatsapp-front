@@ -9,14 +9,24 @@ import { Card, CardBody, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/language-switcher';
+import { Monitor, Moon, Sun } from 'lucide-react';
 import { api, apiError } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth-store';
+import { useTheme, type Theme } from '@/lib/theme';
+import { cn } from '@/lib/utils';
 
 export default function SettingsPage() {
   const t = useTranslations('settings');
   const tc = useTranslations('common');
   const tr = useTranslations('roles');
   const { user, setUser } = useAuthStore();
+  const { theme, setTheme } = useTheme();
+
+  const themeOptions: { value: Theme; label: string; icon: typeof Sun }[] = [
+    { value: 'light', label: t('themeLight'), icon: Sun },
+    { value: 'dark', label: t('themeDark'), icon: Moon },
+    { value: 'system', label: t('themeSystem'), icon: Monitor },
+  ];
 
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
@@ -70,8 +80,8 @@ export default function SettingsPage() {
         {/* Account details */}
         <Card>
           <CardHeader>
-            <h2 className="font-semibold text-slate-900">{t('account')}</h2>
-            <p className="mt-0.5 text-xs text-slate-500">{t('accountDesc')}</p>
+            <h2 className="font-semibold text-foreground">{t('account')}</h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">{t('accountDesc')}</p>
           </CardHeader>
           <CardBody>
             <form
@@ -109,8 +119,8 @@ export default function SettingsPage() {
         {/* Password */}
         <Card>
           <CardHeader>
-            <h2 className="font-semibold text-slate-900">{t('password')}</h2>
-            <p className="mt-0.5 text-xs text-slate-500">{t('passwordDesc')}</p>
+            <h2 className="font-semibold text-foreground">{t('password')}</h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">{t('passwordDesc')}</p>
           </CardHeader>
           <CardBody>
             <form
@@ -150,13 +160,38 @@ export default function SettingsPage() {
           </CardBody>
         </Card>
 
-        {/* Language */}
+        {/* Appearance */}
         <Card>
           <CardHeader>
-            <h2 className="font-semibold text-slate-900">{t('language')}</h2>
+            <h2 className="font-semibold text-foreground">{t('appearance')}</h2>
+            <p className="mt-0.5 text-xs text-muted-foreground">{t('theme')}</p>
           </CardHeader>
-          <CardBody>
-            <LanguageSwitcher />
+          <CardBody className="space-y-5">
+            <div className="grid grid-cols-3 gap-2">
+              {themeOptions.map((opt) => {
+                const Icon = opt.icon;
+                const active = theme === opt.value;
+                return (
+                  <button
+                    key={opt.value}
+                    onClick={() => setTheme(opt.value)}
+                    className={cn(
+                      'flex flex-col items-center gap-2 rounded-xl border p-4 text-sm font-medium transition',
+                      active
+                        ? 'border-primary bg-primary/5 text-foreground ring-1 ring-primary/30'
+                        : 'border-border text-muted-foreground hover:bg-muted hover:text-foreground',
+                    )}
+                  >
+                    <Icon className={cn('h-5 w-5', active && 'text-primary')} />
+                    {opt.label}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="flex items-center justify-between border-t border-border pt-4">
+              <span className="text-sm text-muted-foreground">{t('language')}</span>
+              <LanguageSwitcher />
+            </div>
           </CardBody>
         </Card>
       </div>

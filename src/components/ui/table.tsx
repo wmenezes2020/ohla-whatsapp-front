@@ -11,7 +11,7 @@ export function Table({ className, ...props }: HTMLAttributes<HTMLTableElement>)
 
 export function THead({ children }: { children: React.ReactNode }) {
   return (
-    <thead className="border-b border-slate-200 text-left text-xs uppercase tracking-wide text-slate-500">
+    <thead className="border-b border-border text-left text-xs uppercase tracking-wide text-muted-foreground">
       {children}
     </thead>
   );
@@ -27,6 +27,6 @@ export function TD({ className, ...props }: TdHTMLAttributes<HTMLTableCellElemen
 
 export function TR({ className, ...props }: HTMLAttributes<HTMLTableRowElement>) {
   return (
-    <tr className={cn('border-b border-slate-100 last:border-0 hover:bg-slate-50', className)} {...props} />
+    <tr className={cn('border-b border-border last:border-0 hover:bg-muted', className)} {...props} />
   );
 }

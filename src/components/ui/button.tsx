@@ -14,11 +14,12 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variants: Record<Variant, string> = {
-  primary: 'bg-brand-600 text-white hover:bg-brand-700 disabled:bg-brand-300',
-  secondary: 'bg-slate-900 text-white hover:bg-slate-800',
-  outline: 'border border-slate-300 bg-white text-slate-700 hover:bg-slate-50',
-  ghost: 'text-slate-600 hover:bg-slate-100',
-  danger: 'bg-red-600 text-white hover:bg-red-700',
+  primary:
+    'bg-primary text-primary-foreground shadow-sm hover:brightness-110 active:brightness-95 disabled:opacity-60',
+  secondary: 'bg-foreground text-background hover:opacity-90',
+  outline: 'border border-border bg-card text-foreground hover:bg-muted',
+  ghost: 'text-muted-foreground hover:bg-muted hover:text-foreground',
+  danger: 'bg-red-600 text-white hover:bg-red-500',
 };
 
 const sizes: Record<Size, string> = {
@@ -34,7 +35,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       ref={ref}
       disabled={disabled || loading}
       className={cn(
-        'inline-flex items-center justify-center gap-2 rounded-lg font-medium transition disabled:cursor-not-allowed disabled:opacity-70',
+        'inline-flex items-center justify-center gap-2 rounded-xl font-medium transition-all duration-150',
+        'focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring/40 focus-visible:ring-offset-1 focus-visible:ring-offset-background',
+        'disabled:cursor-not-allowed disabled:opacity-70',
         variants[variant],
         sizes[size],
         className,

@@ -133,7 +133,7 @@ export default function ReportsPage() {
             key: 'toNumber',
             header: t('to'),
             sortable: true,
-            render: (m) => <span className="font-medium text-slate-800">+{m.toNumber}</span>,
+            render: (m) => <span className="font-medium text-foreground">+{m.toNumber}</span>,
           },
           {
             key: 'type',
@@ -149,13 +149,13 @@ export default function ReportsPage() {
           {
             key: 'externalId',
             header: t('externalId'),
-            render: (m) => <span className="text-slate-500">{m.externalId || '—'}</span>,
+            render: (m) => <span className="text-muted-foreground">{m.externalId || '—'}</span>,
           },
           {
             key: 'createdAt',
             header: t('date'),
             sortable: true,
-            render: (m) => <span className="text-slate-500">{formatDate(m.createdAt, locale)}</span>,
+            render: (m) => <span className="text-muted-foreground">{formatDate(m.createdAt, locale)}</span>,
           },
           {
             key: 'actions',
@@ -175,33 +175,33 @@ export default function ReportsPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-3 text-sm">
               <div>
-                <p className="text-slate-400">{t('to')}</p>
+                <p className="text-muted-foreground">{t('to')}</p>
                 <p className="font-medium">+{detail.data.message.toNumber}</p>
               </div>
               <div>
-                <p className="text-slate-400">{tc('status')}</p>
+                <p className="text-muted-foreground">{tc('status')}</p>
                 <MessageStatusBadge status={detail.data.message.status} />
               </div>
             </div>
             {detail.data.message.text && (
-              <div className="rounded-lg bg-slate-50 p-3 text-sm text-slate-700">
+              <div className="rounded-lg bg-muted p-3 text-sm text-foreground">
                 {detail.data.message.text}
               </div>
             )}
             {detail.data.message.error && (
-              <div className="rounded-lg bg-red-50 p-3 text-xs text-red-700">
+              <div className="rounded-lg bg-red-500/10 p-3 text-xs text-red-600 dark:text-red-300">
                 {JSON.stringify(detail.data.message.error)}
               </div>
             )}
             <div>
-              <p className="mb-2 text-sm font-medium text-slate-700">{t('timeline')}</p>
-              <ol className="space-y-2 border-l-2 border-slate-100 pl-4">
+              <p className="mb-2 text-sm font-medium text-foreground">{t('timeline')}</p>
+              <ol className="space-y-2 border-l-2 border-border pl-4">
                 {detail.data.events.map((ev) => (
                   <li key={ev.id} className="relative">
                     <span className="absolute -left-[1.30rem] top-1 h-2.5 w-2.5 rounded-full bg-brand-500" />
                     <div className="flex items-center justify-between">
                       <MessageStatusBadge status={ev.status} />
-                      <span className="text-xs text-slate-400">{formatDate(ev.createdAt, locale)}</span>
+                      <span className="text-xs text-muted-foreground">{formatDate(ev.createdAt, locale)}</span>
                     </div>
                   </li>
                 ))}

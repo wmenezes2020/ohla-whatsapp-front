@@ -81,7 +81,7 @@ export default function EvolutionServersPage() {
             sortable: true,
             searchable: true,
             accessor: (s) => s.name,
-            render: (s) => <span className="font-medium text-slate-800">{s.name}</span>,
+            render: (s) => <span className="font-medium text-foreground">{s.name}</span>,
           },
           {
             key: 'baseUrl',
@@ -89,7 +89,7 @@ export default function EvolutionServersPage() {
             sortable: true,
             searchable: true,
             accessor: (s) => s.baseUrl,
-            render: (s) => <span className="text-slate-500">{s.baseUrl}</span>,
+            render: (s) => <span className="text-muted-foreground">{s.baseUrl}</span>,
           },
           {
             key: 'enabled',
@@ -110,7 +110,7 @@ export default function EvolutionServersPage() {
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="text-red-600 hover:bg-red-50"
+                  className="text-red-600 hover:bg-red-500/10"
                   onClick={() => remove(s.id)}
                 >
                   <Trash2 className="h-4 w-4" />

@@ -283,7 +283,12 @@
     "passwordChanged": "Password updated",
     "emailTaken": "Email is already registered",
     "currentPasswordInvalid": "The current password is incorrect",
-    "noChanges": "No changes to save"
+    "noChanges": "No changes to save",
+    "appearance": "Appearance",
+    "theme": "Theme",
+    "themeLight": "Light",
+    "themeDark": "Dark",
+    "themeSystem": "System"
   },
   "roles": {
     "SUPER_ADMIN": "Super Admin",

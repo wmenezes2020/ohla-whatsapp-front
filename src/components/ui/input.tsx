@@ -19,7 +19,7 @@ export const Input = forwardRef<
       </label>
     )}
     <input ref={ref} id={id} className={cn('input-base', className)} {...props} />
-    {hint && <p className="mt-1 text-xs text-slate-500">{hint}</p>}
+    {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
   </div>
 ));
 Input.displayName = 'Input';
@@ -37,7 +37,7 @@ export const Select = forwardRef<
     <select ref={ref} id={id} className={cn('input-base', className)} {...props}>
       {children}
     </select>
-    {hint && <p className="mt-1 text-xs text-slate-500">{hint}</p>}
+    {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
   </div>
 ));
 Select.displayName = 'Select';

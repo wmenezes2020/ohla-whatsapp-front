@@ -116,8 +116,8 @@ export default function AdminUsersPage() {
             accessor: (u) => `${u.fullName} ${u.email}`,
             render: (u) => (
               <div>
-                <p className="font-medium text-slate-800">{u.fullName}</p>
-                <p className="text-xs text-slate-400">{u.email}</p>
+                <p className="font-medium text-foreground">{u.fullName}</p>
+                <p className="text-xs text-muted-foreground">{u.email}</p>
               </div>
             ),
           },
@@ -131,7 +131,7 @@ export default function AdminUsersPage() {
               u.role === 'SUPER_ADMIN' ? (
                 <Badge tone="warning">Super Admin</Badge>
               ) : (
-                <span className="text-slate-600">{u.tenantName || '—'}</span>
+                <span className="text-muted-foreground">{u.tenantName || '—'}</span>
               ),
           },
           {
@@ -161,7 +161,7 @@ export default function AdminUsersPage() {
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="text-red-600 hover:bg-red-50"
+                  className="text-red-600 hover:bg-red-500/10"
                   onClick={() => setStatus(u.id, 'suspend')}
                 >
                   <Ban className="h-4 w-4" /> {t('suspend')}

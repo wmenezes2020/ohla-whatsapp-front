@@ -179,15 +179,15 @@ function Field({
   return (
     <TR>
       <TD className="whitespace-nowrap">
-        <code className="rounded bg-slate-100 px-1.5 py-0.5 text-xs font-medium text-slate-800">
+        <code className="rounded bg-muted px-1.5 py-0.5 text-xs font-medium text-foreground">
           {name}
         </code>
       </TD>
-      <TD className="whitespace-nowrap text-xs text-slate-500">{type}</TD>
+      <TD className="whitespace-nowrap text-xs text-muted-foreground">{type}</TD>
       <TD>
         <Badge tone={required ? 'warning' : 'neutral'}>{required ? t('req') : t('opt')}</Badge>
       </TD>
-      <TD className="text-slate-600">{desc}</TD>
+      <TD className="text-muted-foreground">{desc}</TD>
     </TR>
   );
 }
@@ -199,37 +199,37 @@ export function IntegrationDocs() {
   return (
     <div className="mt-10">
       <div className="mb-4">
-        <h2 className="text-xl font-bold text-slate-900">{t('title')}</h2>
-        <p className="mt-1 text-sm text-slate-500">{t('subtitle')}</p>
+        <h2 className="text-xl font-bold text-foreground">{t('title')}</h2>
+        <p className="mt-1 text-sm text-muted-foreground">{t('subtitle')}</p>
       </div>
 
       <div className="space-y-6">
         {/* Quick start */}
         <Card>
           <CardHeader>
-            <h3 className="font-semibold text-slate-900">{t('quickStart')}</h3>
+            <h3 className="font-semibold text-foreground">{t('quickStart')}</h3>
           </CardHeader>
           <CardBody className="space-y-3">
             <div className="flex flex-wrap items-center gap-2 text-sm">
-              <span className="text-slate-500">{t('baseUrl')}:</span>
-              <code className="rounded bg-slate-100 px-2 py-1 text-xs text-slate-800">{API_BASE}</code>
+              <span className="text-muted-foreground">{t('baseUrl')}:</span>
+              <code className="rounded bg-muted px-2 py-1 text-xs text-foreground">{API_BASE}</code>
             </div>
-            <p className="text-sm text-slate-600">{t('jsonNote')}</p>
+            <p className="text-sm text-muted-foreground">{t('jsonNote')}</p>
           </CardBody>
         </Card>
 
         {/* Auth */}
         <Card>
           <CardHeader>
-            <h3 className="font-semibold text-slate-900">{t('auth')}</h3>
+            <h3 className="font-semibold text-foreground">{t('auth')}</h3>
           </CardHeader>
           <CardBody className="space-y-3">
-            <p className="text-sm text-slate-600">{t('authDesc')}</p>
+            <p className="text-sm text-muted-foreground">{t('authDesc')}</p>
             <CodeBlock
               label="HTTP headers"
               code={`Authorization: Bearer pk_live_••••\n# o / or\nx-api-key: pk_live_••••`}
             />
-            <div className="rounded-lg border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
+            <div className="rounded-lg border border-amber-300/40 bg-amber-50 p-3 text-xs text-amber-800 dark:border-amber-400/20 dark:bg-amber-400/10 dark:text-amber-300">
               {t('authNote')}
             </div>
           </CardBody>
@@ -240,13 +240,13 @@ export function IntegrationDocs() {
           <CardHeader>
             <div className="flex flex-wrap items-center gap-2">
               <Badge tone="success">POST</Badge>
-              <code className="text-sm font-medium text-slate-800">/v1/messages</code>
+              <code className="text-sm font-medium text-foreground">/v1/messages</code>
             </div>
           </CardHeader>
           <CardBody className="space-y-4">
-            <p className="text-sm text-slate-600">{t('sendDesc')}</p>
+            <p className="text-sm text-muted-foreground">{t('sendDesc')}</p>
 
-            <h4 className="text-sm font-semibold text-slate-800">{t('requestFields')}</h4>
+            <h4 className="text-sm font-semibold text-foreground">{t('requestFields')}</h4>
             <Table>
               <THead>
                 <tr>
@@ -272,8 +272,8 @@ export function IntegrationDocs() {
               </tbody>
             </Table>
 
-            <div className="rounded-lg bg-slate-50 p-3 text-sm text-slate-600">
-              <span className="font-semibold text-slate-800">{t('contentTypes')}: </span>
+            <div className="rounded-lg bg-muted p-3 text-sm text-muted-foreground">
+              <span className="font-semibold text-foreground">{t('contentTypes')}: </span>
               {t('contentTypesDesc')}
             </div>
           </CardBody>
@@ -282,17 +282,17 @@ export function IntegrationDocs() {
         {/* Code examples */}
         <Card>
           <CardHeader>
-            <h3 className="font-semibold text-slate-900">{t('examples')}</h3>
+            <h3 className="font-semibold text-foreground">{t('examples')}</h3>
           </CardHeader>
           <CardBody className="space-y-4">
-            <div className="flex flex-wrap gap-1 rounded-lg bg-slate-100 p-1">
+            <div className="flex flex-wrap gap-1 rounded-lg bg-muted p-1">
               {LANGS.map((l) => (
                 <button
                   key={l.id}
                   onClick={() => setLang(l.id)}
                   className={cn(
                     'rounded-md px-3 py-1.5 text-sm font-medium transition',
-                    lang === l.id ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700',
+                    lang === l.id ? 'bg-white text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
                   )}
                 >
                   {l.label}
@@ -307,14 +307,14 @@ export function IntegrationDocs() {
         {/* Response & lifecycle */}
         <Card>
           <CardHeader>
-            <h3 className="font-semibold text-slate-900">{t('responseTitle')}</h3>
+            <h3 className="font-semibold text-foreground">{t('responseTitle')}</h3>
           </CardHeader>
           <CardBody className="space-y-4">
-            <p className="text-sm text-slate-600">{t('responseDesc')}</p>
+            <p className="text-sm text-muted-foreground">{t('responseDesc')}</p>
             <CodeBlock label="202 Accepted" code={responseExample} />
 
             <div>
-              <h4 className="mb-2 text-sm font-semibold text-slate-800">{t('lifecycle')}</h4>
+              <h4 className="mb-2 text-sm font-semibold text-foreground">{t('lifecycle')}</h4>
               <div className="flex flex-wrap items-center gap-2">
                 {['queued', 'sending', 'sent', 'delivered', 'read'].map((s, i) => (
                   <span key={s} className="flex items-center gap-2">
@@ -325,14 +325,14 @@ export function IntegrationDocs() {
                 <span className="text-slate-300">/</span>
                 <Badge tone="danger">failed</Badge>
               </div>
-              <p className="mt-2 text-xs text-slate-500">{t('lifecycleDesc')}</p>
+              <p className="mt-2 text-xs text-muted-foreground">{t('lifecycleDesc')}</p>
             </div>
 
             <div>
-              <h4 className="mb-2 text-sm font-semibold text-slate-800">{t('checkStatus')}</h4>
+              <h4 className="mb-2 text-sm font-semibold text-foreground">{t('checkStatus')}</h4>
               <div className="mb-2 flex flex-wrap items-center gap-2">
                 <Badge tone="info">GET</Badge>
-                <code className="text-sm text-slate-800">/v1/messages/{'{id}'}</code>
+                <code className="text-sm text-foreground">/v1/messages/{'{id}'}</code>
               </div>
               <CodeBlock label="cURL" code={statusExample} />
             </div>
@@ -342,10 +342,10 @@ export function IntegrationDocs() {
         {/* Errors */}
         <Card>
           <CardHeader>
-            <h3 className="font-semibold text-slate-900">{t('errorsTitle')}</h3>
+            <h3 className="font-semibold text-foreground">{t('errorsTitle')}</h3>
           </CardHeader>
           <CardBody className="space-y-3">
-            <p className="text-sm text-slate-600">{t('errorsDesc')}</p>
+            <p className="text-sm text-muted-foreground">{t('errorsDesc')}</p>
             <Table>
               <THead>
                 <tr>
@@ -368,9 +368,9 @@ export function IntegrationDocs() {
                       <Badge tone="neutral">{http}</Badge>
                     </TD>
                     <TD className="whitespace-nowrap">
-                      <code className="text-xs text-slate-700">{code}</code>
+                      <code className="text-xs text-foreground">{code}</code>
                     </TD>
-                    <TD className="text-slate-600">{meaning}</TD>
+                    <TD className="text-muted-foreground">{meaning}</TD>
                   </TR>
                 ))}
               </tbody>
@@ -381,10 +381,10 @@ export function IntegrationDocs() {
         {/* Best practices */}
         <Card>
           <CardHeader>
-            <h3 className="font-semibold text-slate-900">{t('bestPractices')}</h3>
+            <h3 className="font-semibold text-foreground">{t('bestPractices')}</h3>
           </CardHeader>
           <CardBody>
-            <ul className="list-disc space-y-2 pl-5 text-sm text-slate-600">
+            <ul className="list-disc space-y-2 pl-5 text-sm text-muted-foreground">
               <li>{t('bp1')}</li>
               <li>{t('bp2')}</li>
               <li>{t('bp3')}</li>

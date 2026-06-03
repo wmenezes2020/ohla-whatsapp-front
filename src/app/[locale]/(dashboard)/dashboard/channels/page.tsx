@@ -167,8 +167,8 @@ export default function ChannelsPage() {
             accessor: (c) => `${c.name} ${c.instanceName} ${c.phoneNumber || ''}`,
             render: (c) => (
               <div>
-                <p className="font-medium text-slate-800">{c.name}</p>
-                <p className="text-xs text-slate-400">{c.instanceName}</p>
+                <p className="font-medium text-foreground">{c.name}</p>
+                <p className="text-xs text-muted-foreground">{c.instanceName}</p>
               </div>
             ),
           },
@@ -187,8 +187,8 @@ export default function ChannelsPage() {
             accessor: (c) => c.phoneNumber || '',
             render: (c) =>
               c.phoneNumber ? (
-                <span className="flex items-center gap-1 text-slate-700">
-                  <Smartphone className="h-3.5 w-3.5 text-slate-400" />+{c.phoneNumber}
+                <span className="flex items-center gap-1 text-foreground">
+                  <Smartphone className="h-3.5 w-3.5 text-muted-foreground" />+{c.phoneNumber}
                 </span>
               ) : (
                 '—'
@@ -201,9 +201,9 @@ export default function ChannelsPage() {
             accessor: (c) => c.rateLimitPerMinute,
             render: (c) => (
               <>
-                <span className="text-slate-700">{c.rateLimitPerMinute}/min</span>
+                <span className="text-foreground">{c.rateLimitPerMinute}/min</span>
                 {c.rateLimitPerDay ? (
-                  <span className="block text-xs text-slate-400">{c.rateLimitPerDay}/día</span>
+                  <span className="block text-xs text-muted-foreground">{c.rateLimitPerDay}/día</span>
                 ) : null}
               </>
             ),
@@ -236,7 +236,7 @@ export default function ChannelsPage() {
                   size="sm"
                   variant="ghost"
                   onClick={() => remove(c.id)}
-                  className="text-red-600 hover:bg-red-50"
+                  className="text-red-600 hover:bg-red-500/10"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -288,13 +288,13 @@ export default function ChannelsPage() {
           {connected ? (
             <div className="py-10">
               <CheckCircle2 className="mx-auto h-16 w-16 text-brand-500" />
-              <p className="mt-4 font-medium text-slate-800">{t('connected')}</p>
+              <p className="mt-4 font-medium text-foreground">{t('connected')}</p>
             </div>
           ) : (
             <>
-              <p className="mb-1 font-medium text-slate-800">{t('qrTitle')}</p>
-              <p className="mb-4 text-xs text-slate-500">{t('qrSubtitle')}</p>
-              <div className="flex h-64 w-64 items-center justify-center rounded-xl border border-slate-200 bg-white p-2">
+              <p className="mb-1 font-medium text-foreground">{t('qrTitle')}</p>
+              <p className="mb-4 text-xs text-muted-foreground">{t('qrSubtitle')}</p>
+              <div className="flex h-64 w-64 items-center justify-center rounded-2xl border border-border bg-white p-3 shadow-sm">
                 {qrImage ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img src={qrImage} alt="QR" className="h-full w-full object-contain" />

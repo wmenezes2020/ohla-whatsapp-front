@@ -78,8 +78,8 @@ export default function TenantsPage() {
             accessor: (tn) => `${tn.name} ${tn.slug}`,
             render: (tn) => (
               <div>
-                <p className="font-medium text-slate-800">{tn.name}</p>
-                <p className="text-xs text-slate-400">{tn.slug}</p>
+                <p className="font-medium text-foreground">{tn.name}</p>
+                <p className="text-xs text-muted-foreground">{tn.slug}</p>
               </div>
             ),
           },
@@ -111,7 +111,7 @@ export default function TenantsPage() {
                 <Button
                   size="sm"
                   variant="ghost"
-                  className="text-red-600 hover:bg-red-50"
+                  className="text-red-600 hover:bg-red-500/10"
                   onClick={() => setStatus(tn.id, 'suspend')}
                 >
                   <Ban className="h-4 w-4" /> {t('suspend')}

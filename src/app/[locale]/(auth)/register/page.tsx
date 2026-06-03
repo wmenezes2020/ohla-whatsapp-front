@@ -35,8 +35,8 @@ export default function RegisterPage() {
 
   return (
     <div>
-      <h2 className="text-2xl font-bold text-slate-900">{t('registerTitle')}</h2>
-      <p className="mt-1 text-sm text-slate-500">{t('registerSubtitle')}</p>
+      <h2 className="text-2xl font-bold text-foreground">{t('registerTitle')}</h2>
+      <p className="mt-1 text-sm text-muted-foreground">{t('registerSubtitle')}</p>
 
       <form onSubmit={onSubmit} className="mt-8 space-y-4">
         <Input
@@ -76,7 +76,7 @@ export default function RegisterPage() {
         </Button>
       </form>
 
-      <p className="mt-6 text-center text-sm text-slate-500">
+      <p className="mt-6 text-center text-sm text-muted-foreground">
         {t('hasAccount')}{' '}
         <Link href="/login" className="font-medium text-brand-600 hover:underline">
           {t('signIn')}

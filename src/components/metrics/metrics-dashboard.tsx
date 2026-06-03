@@ -32,6 +32,7 @@ import { ChannelStatusBadge } from '@/components/status-badges';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { useRealtime } from '@/lib/socket';
+import { useTheme } from '@/lib/theme';
 import type { Metrics } from '@/lib/types';
 
 type Period = '24h' | '7d' | '30d';
@@ -50,6 +51,18 @@ export function MetricsDashboard({ scope }: { scope: 'tenant' | 'admin' }) {
   const t = useTranslations('metrics');
   const tStatus = useTranslations('channelStatus');
   const locale = useLocale();
+  const { resolvedTheme } = useTheme();
+  const dark = resolvedTheme === 'dark';
+  const axisColor = dark ? '#64748b' : '#94a3b8';
+  const gridColor = dark ? 'rgba(148,163,184,0.12)' : 'rgba(148,163,184,0.18)';
+  const tooltipStyle = {
+    background: dark ? '#0f1420' : '#ffffff',
+    border: `1px solid ${dark ? 'rgba(148,163,184,0.2)' : '#e2e8f0'}`,
+    borderRadius: 12,
+    fontSize: 12,
+    color: dark ? '#e2e8f0' : '#0f172a',
+    boxShadow: '0 8px 24px -12px rgba(2,6,23,0.25)',
+  } as const;
 
   const [period, setPeriod] = useState<Period>('7d');
   const [tenantId, setTenantId] = useState('');
@@ -101,14 +114,14 @@ export function MetricsDashboard({ scope }: { scope: 'tenant' | 'admin' }) {
     <div className="space-y-6">
       {/* Filters */}
       <div className="flex flex-wrap items-center gap-3">
-        <div className="flex rounded-lg bg-slate-100 p-1">
+        <div className="flex rounded-lg bg-muted p-1">
           {(['24h', '7d', '30d'] as Period[]).map((p) => (
             <button
               key={p}
               onClick={() => setPeriod(p)}
               className={cn(
                 'rounded-md px-3 py-1.5 text-sm font-medium transition',
-                period === p ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500 hover:text-slate-700',
+                period === p ? 'bg-card text-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground',
               )}
             >
               {t(p === '24h' ? 'last24h' : p === '7d' ? 'last7d' : 'last30d')}
@@ -146,20 +159,20 @@ export function MetricsDashboard({ scope }: { scope: 'tenant' | 'admin' }) {
 
       {/* Stat cards */}
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
-        <Stat label={t('sent')} value={s?.sent ?? 0} icon={CheckCircle2} tone="bg-brand-50 text-brand-600" />
-        <Stat label={t('pending')} value={s?.pending ?? 0} icon={Clock} tone="bg-amber-50 text-amber-600" />
-        <Stat label={t('failed')} value={s?.failed ?? 0} icon={XCircle} tone="bg-red-50 text-red-600" />
+        <Stat label={t('sent')} value={s?.sent ?? 0} icon={CheckCircle2} tone="bg-brand-500/10 text-brand-600 dark:text-brand-400" />
+        <Stat label={t('pending')} value={s?.pending ?? 0} icon={Clock} tone="bg-amber-500/10 text-amber-600 dark:text-amber-400" />
+        <Stat label={t('failed')} value={s?.failed ?? 0} icon={XCircle} tone="bg-red-500/10 text-red-600 dark:text-red-400" />
         <Stat
           label={t('connectedChannels')}
           value={`${s?.connectedChannels ?? 0}/${s?.totalChannels ?? 0}`}
           icon={Radio}
-          tone="bg-sky-50 text-sky-600"
+          tone="bg-sky-500/10 text-sky-600 dark:text-sky-400"
         />
         <Stat
           label={t('avgResponse')}
           value={s?.avgLatencyMs != null ? `${s.avgLatencyMs} ms` : '—'}
           icon={Timer}
-          tone="bg-violet-50 text-violet-600"
+          tone="bg-violet-500/10 text-violet-600 dark:text-violet-400"
         />
       </div>
 
@@ -167,7 +180,7 @@ export function MetricsDashboard({ scope }: { scope: 'tenant' | 'admin' }) {
       <div className="grid gap-6 lg:grid-cols-3">
         <Card className="lg:col-span-2">
           <CardHeader>
-            <h3 className="font-semibold text-slate-900">{t('messagesOverTime')}</h3>
+            <h3 className="font-semibold text-foreground">{t('messagesOverTime')}</h3>
           </CardHeader>
           <CardBody>
             {tsData.length === 0 ? (
@@ -183,11 +196,11 @@ export function MetricsDashboard({ scope }: { scope: 'tenant' | 'admin' }) {
                       </linearGradient>
                     ))}
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" stroke="#eef2f7" />
-                  <XAxis dataKey="label" tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                  <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: '#94a3b8' }} />
-                  <Tooltip />
-                  <Legend />
+                  <CartesianGrid strokeDasharray="3 3" stroke={gridColor} />
+                  <XAxis dataKey="label" tick={{ fontSize: 12, fill: axisColor }} axisLine={{ stroke: gridColor }} tickLine={false} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12, fill: axisColor }} axisLine={false} tickLine={false} />
+                  <Tooltip contentStyle={tooltipStyle} cursor={{ stroke: axisColor, strokeOpacity: 0.3 }} />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
                   <Area type="monotone" dataKey="sent" name={t('sent')} stroke={COLORS.sent} fill="url(#g-sent)" />
                   <Area type="monotone" dataKey="pending" name={t('pending')} stroke={COLORS.pending} fill="url(#g-pending)" />
                   <Area type="monotone" dataKey="failed" name={t('failed')} stroke={COLORS.failed} fill="url(#g-failed)" />
@@ -199,7 +212,7 @@ export function MetricsDashboard({ scope }: { scope: 'tenant' | 'admin' }) {
 
         <Card>
           <CardHeader>
-            <h3 className="font-semibold text-slate-900">{t('byStatus')}</h3>
+            <h3 className="font-semibold text-foreground">{t('byStatus')}</h3>
           </CardHeader>
           <CardBody>
             {donut.length === 0 ? (
@@ -207,13 +220,13 @@ export function MetricsDashboard({ scope }: { scope: 'tenant' | 'admin' }) {
             ) : (
               <ResponsiveContainer width="100%" height={280}>
                 <PieChart>
-                  <Pie data={donut} dataKey="value" nameKey="name" innerRadius={60} outerRadius={100} paddingAngle={2}>
+                  <Pie data={donut} dataKey="value" nameKey="name" innerRadius={60} outerRadius={100} paddingAngle={2} stroke="none">
                     {donut.map((d) => (
                       <Cell key={d.name} fill={d.color} />
                     ))}
                   </Pie>
-                  <Tooltip />
-                  <Legend />
+                  <Tooltip contentStyle={tooltipStyle} />
+                  <Legend iconType="circle" wrapperStyle={{ fontSize: 12 }} />
                 </PieChart>
               </ResponsiveContainer>
             )}
@@ -224,16 +237,16 @@ export function MetricsDashboard({ scope }: { scope: 'tenant' | 'admin' }) {
       {/* Channel states */}
       <Card>
         <CardHeader>
-          <h3 className="font-semibold text-slate-900">{t('channelStates')}</h3>
+          <h3 className="font-semibold text-foreground">{t('channelStates')}</h3>
         </CardHeader>
         <CardBody className="space-y-4">
           <div className="flex flex-wrap gap-2">
             {Object.entries(data?.channelsByStatus || {})
               .filter(([, n]) => n > 0)
               .map(([status, n]) => (
-                <div key={status} className="flex items-center gap-2 rounded-lg border border-slate-200 px-3 py-1.5">
+                <div key={status} className="flex items-center gap-2 rounded-lg border border-border px-3 py-1.5">
                   <ChannelStatusBadge status={status as any} />
-                  <span className="text-sm font-semibold text-slate-700">{n}</span>
+                  <span className="text-sm font-semibold text-foreground">{n}</span>
                 </div>
               ))}
             {!data?.channels?.length && <Empty label={t('noData')} />}
@@ -241,10 +254,10 @@ export function MetricsDashboard({ scope }: { scope: 'tenant' | 'admin' }) {
           {!!data?.channels?.length && (
             <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
               {data.channels.map((c) => (
-                <div key={c.id} className="flex items-center justify-between rounded-lg bg-slate-50 px-3 py-2">
-                  <span className="truncate text-sm font-medium text-slate-700">{c.name}</span>
+                <div key={c.id} className="flex items-center justify-between rounded-lg bg-muted px-3 py-2">
+                  <span className="truncate text-sm font-medium text-foreground">{c.name}</span>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-slate-400">{c.sent}</span>
+                    <span className="text-xs text-muted-foreground">{c.sent}</span>
                     <ChannelStatusBadge status={c.status} />
                   </div>
                 </div>
@@ -258,7 +271,7 @@ export function MetricsDashboard({ scope }: { scope: 'tenant' | 'admin' }) {
       {scope === 'admin' && (
         <Card>
           <CardHeader>
-            <h3 className="font-semibold text-slate-900">{t('evolutionStatus')}</h3>
+            <h3 className="font-semibold text-foreground">{t('evolutionStatus')}</h3>
           </CardHeader>
           <CardBody>
             {!data?.evolutionServers?.length ? (
@@ -266,18 +279,18 @@ export function MetricsDashboard({ scope }: { scope: 'tenant' | 'admin' }) {
             ) : (
               <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
                 {data.evolutionServers.map((srv) => (
-                  <div key={srv.id} className="rounded-lg border border-slate-200 p-4">
+                  <div key={srv.id} className="rounded-lg border border-border p-4">
                     <div className="mb-2 flex items-center justify-between">
-                      <span className="flex items-center gap-2 font-medium text-slate-800">
-                        <Server className="h-4 w-4 text-slate-400" />
+                      <span className="flex items-center gap-2 font-medium text-foreground">
+                        <Server className="h-4 w-4 text-muted-foreground" />
                         {srv.name}
                       </span>
                       <Badge tone={!srv.enabled ? 'neutral' : srv.reachable ? 'success' : 'danger'}>
                         {!srv.enabled ? t('disabled') : srv.reachable ? t('reachable') : t('unreachable')}
                       </Badge>
                     </div>
-                    <p className="truncate text-xs text-slate-400">{srv.baseUrl}</p>
-                    <p className="mt-2 text-sm text-slate-600">
+                    <p className="truncate text-xs text-muted-foreground">{srv.baseUrl}</p>
+                    <p className="mt-2 text-sm text-muted-foreground">
                       {t('connectedChannels')}: <span className="font-semibold">{srv.connectedChannels}</span> /{' '}
                       {srv.totalChannels}
                     </p>
@@ -310,8 +323,8 @@ function Stat({
           <Icon className="h-5 w-5" />
         </div>
         <div className="min-w-0">
-          <p className="truncate text-xs text-slate-500">{label}</p>
-          <p className="text-xl font-bold text-slate-900">{value}</p>
+          <p className="truncate text-xs text-muted-foreground">{label}</p>
+          <p className="text-xl font-bold text-foreground">{value}</p>
         </div>
       </CardBody>
     </Card>
@@ -320,7 +333,7 @@ function Stat({
 
 function Empty({ label }: { label: string }) {
   return (
-    <div className="flex h-[200px] items-center justify-center text-sm text-slate-400">
+    <div className="flex h-[200px] items-center justify-center text-sm text-muted-foreground">
       <Activity className="mr-2 h-4 w-4" />
       {label}
     </div>

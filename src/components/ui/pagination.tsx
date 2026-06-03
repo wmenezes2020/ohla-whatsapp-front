@@ -33,7 +33,7 @@ export function Pagination({
   return (
     <div className="flex items-center gap-1">
       <button
-        className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 disabled:opacity-40"
+        className="rounded-md p-1.5 text-muted-foreground hover:bg-muted disabled:opacity-40"
         disabled={page <= 1}
         onClick={() => onPage(page - 1)}
         aria-label="prev"
@@ -42,7 +42,7 @@ export function Pagination({
       </button>
       {pageList(page, totalPages).map((p, i) =>
         p === '…' ? (
-          <span key={`e${i}`} className="px-1.5 text-sm text-slate-400">
+          <span key={`e${i}`} className="px-1.5 text-sm text-muted-foreground">
             …
           </span>
         ) : (
@@ -51,7 +51,7 @@ export function Pagination({
             onClick={() => onPage(p)}
             className={cn(
               'min-w-8 rounded-md px-2.5 py-1 text-sm font-medium transition',
-              p === page ? 'bg-brand-600 text-white' : 'text-slate-600 hover:bg-slate-100',
+              p === page ? 'bg-brand-600 text-white' : 'text-muted-foreground hover:bg-muted',
             )}
           >
             {p}
@@ -59,7 +59,7 @@ export function Pagination({
         ),
       )}
       <button
-        className="rounded-md p-1.5 text-slate-500 hover:bg-slate-100 disabled:opacity-40"
+        className="rounded-md p-1.5 text-muted-foreground hover:bg-muted disabled:opacity-40"
         disabled={page >= totalPages}
         onClick={() => onPage(page + 1)}
         aria-label="next"

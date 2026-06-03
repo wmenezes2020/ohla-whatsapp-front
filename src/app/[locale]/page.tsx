@@ -13,6 +13,6 @@ export default function IndexPage() {
   }, [token, router]);
 
   return (
-    <div className="flex min-h-screen items-center justify-center text-slate-400">…</div>
+    <div className="flex min-h-screen items-center justify-center text-muted-foreground">…</div>
   );
 }
