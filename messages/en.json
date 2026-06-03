@@ -1,5 +1,9 @@
 {
-  "app": { "name": "PlataformaFallback", "tagline": "Professional WhatsApp messaging" },
+  "app": { "name": "Ohla", "tagline": "Professional WhatsApp messaging" },
+  "authHero": {
+    "title": "WhatsApp communication at scale, without blocks.",
+    "subtitle": "Smart distribution across lines, per-channel limits and real-time monitoring."
+  },
   "common": {
     "loading": "Loading...",
     "save": "Save",

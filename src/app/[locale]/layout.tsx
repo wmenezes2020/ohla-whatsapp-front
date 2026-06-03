@@ -10,8 +10,8 @@ import '../globals.css';
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
 export const metadata: Metadata = {
-  title: 'PlataformaFallback',
-  description: 'Comunicación WhatsApp profesional vía Evolution API',
+  title: process.env.NEXT_PUBLIC_APP_NAME || 'Ohla',
+  description: 'Comunicación WhatsApp profesional',
 };
 
 export function generateStaticParams() {

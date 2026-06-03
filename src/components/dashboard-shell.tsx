@@ -22,6 +22,8 @@ import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { LanguageSwitcher } from './language-switcher';
 
+const APP_NAME = process.env.NEXT_PUBLIC_APP_NAME || 'Ohla';
+
 interface NavItem {
   href: string;
   label: string;
@@ -110,7 +112,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     <div className="flex h-full flex-col">
       <div className="flex items-center gap-2 px-5 py-5 text-lg font-semibold text-slate-900">
         <MessageCircle className="h-6 w-6 text-brand-600" />
-        PlataformaFallback
+        {APP_NAME}
       </div>
       <nav className="flex-1 space-y-1 px-3">
         {!isSuperAdmin && (

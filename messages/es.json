@@ -1,5 +1,9 @@
 {
-  "app": { "name": "PlataformaFallback", "tagline": "Comunicación WhatsApp profesional" },
+  "app": { "name": "Ohla", "tagline": "Comunicación WhatsApp profesional" },
+  "authHero": {
+    "title": "Comunicación WhatsApp a escala, sin bloqueos.",
+    "subtitle": "Distribución inteligente entre líneas, límites por canal y monitoreo en tiempo real."
+  },
   "common": {
     "loading": "Cargando...",
     "save": "Guardar",

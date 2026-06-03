@@ -2,7 +2,7 @@
   "name": "plataforma-fallback-frontend",
   "version": "1.0.0",
   "private": true,
-  "description": "SaaS de comunicación WhatsApp vía Evolution API — Frontend (Next.js)",
+  "description": "Ohla WhatsApp — SaaS de comunicación WhatsApp (Frontend Next.js)",
   "scripts": {
     "dev": "next dev -p 3001",
     "build": "next build",
