@@ -12,6 +12,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { DataTable, type Column } from '@/components/ui/data-table';
 import { IntegrationDocs } from '@/components/integration-docs';
+import { ApiPlayground } from '@/components/api-playground';
 import { api, apiError } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import type { ApiKey } from '@/lib/types';
@@ -20,6 +21,7 @@ import { useLocale } from 'next-intl';
 export default function ApiKeysPage() {
   const t = useTranslations('apiKeys');
   const tc = useTranslations('common');
+  const tp = useTranslations('playground');
   const locale = useLocale();
   const qc = useQueryClient();
 
@@ -27,6 +29,7 @@ export default function ApiKeysPage() {
   const [name, setName] = useState('');
   const [secret, setSecret] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
+  const [testKey, setTestKey] = useState('');
 
   const keys = useQuery({
     queryKey: ['api-keys'],
@@ -138,6 +141,9 @@ export default function ApiKeysPage() {
       {/* Integration documentation */}
       <IntegrationDocs />
 
+      {/* Interactive test form */}
+      <ApiPlayground apiKey={testKey} onApiKeyChange={setTestKey} />
+
       {/* Create dialog */}
       <Dialog open={createOpen} onClose={() => setCreateOpen(false)} title={t('create')}>
         <div className="space-y-4">
@@ -172,7 +178,16 @@ export default function ApiKeysPage() {
               {copied ? <Check className="h-4 w-4 text-brand-600" /> : <Copy className="h-4 w-4" />}
             </Button>
           </div>
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
+            <Button
+              variant="outline"
+              onClick={() => {
+                if (secret) setTestKey(secret);
+                setSecret(null);
+              }}
+            >
+              {tp('useCreatedKey')}
+            </Button>
             <Button onClick={() => setSecret(null)}>{tc('close')}</Button>
           </div>
         </div>
