@@ -29,7 +29,8 @@ export default function ApiKeysPage() {
   const [name, setName] = useState('');
   const [secret, setSecret] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
-  const [testKey, setTestKey] = useState('');
+  const [testKeyId, setTestKeyId] = useState('');
+  const [createdKeyId, setCreatedKeyId] = useState<string | null>(null);
 
   const keys = useQuery({
     queryKey: ['api-keys'],
@@ -43,6 +44,7 @@ export default function ApiKeysPage() {
       setCreateOpen(false);
       setName('');
       setSecret(key.secret ?? null);
+      setCreatedKeyId(key.id);
     },
     onError: (e) => toast.error(apiError(e).message),
   });
@@ -142,7 +144,7 @@ export default function ApiKeysPage() {
       <IntegrationDocs />
 
       {/* Interactive test form */}
-      <ApiPlayground apiKey={testKey} onApiKeyChange={setTestKey} />
+      <ApiPlayground keyId={testKeyId} onKeyIdChange={setTestKeyId} />
 
       {/* Create dialog */}
       <Dialog open={createOpen} onClose={() => setCreateOpen(false)} title={t('create')}>
@@ -182,7 +184,7 @@ export default function ApiKeysPage() {
             <Button
               variant="outline"
               onClick={() => {
-                if (secret) setTestKey(secret);
+                if (createdKeyId) setTestKeyId(createdKeyId);
                 setSecret(null);
               }}
             >

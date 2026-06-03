@@ -65,9 +65,11 @@
   "playground": {
     "title": "Send tester",
     "subtitle": "Send a real test message using your API Key and try different scenarios.",
-    "warning": "This sends a real message. The API Key is used from the browser for testing only; in production use it from your server.",
+    "warning": "This sends a real message using the selected API Key.",
     "apiKey": "API Key",
-    "apiKeyHint": "Paste your key (pk_live_…). It is shown only once when created.",
+    "apiKeyHint": "Select one of your active API Keys.",
+    "noActiveKeys": "You have no active API Keys. Create one above to test.",
+    "selectKey": "Select an API Key",
     "useCreatedKey": "Use in tester",
     "scenarios": "Suggested scenarios",
     "scText": "Plain text",

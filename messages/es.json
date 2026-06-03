@@ -65,9 +65,11 @@
   "playground": {
     "title": "Probador de envíos",
     "subtitle": "Envía un mensaje de prueba real usando tu API Key y prueba distintos escenarios.",
-    "warning": "Esto envía un mensaje real. La API Key se usa desde el navegador solo para pruebas; en producción úsala desde tu servidor.",
+    "warning": "Esto envía un mensaje real usando la API Key seleccionada.",
     "apiKey": "API Key",
-    "apiKeyHint": "Pega tu key (pk_live_…). Se muestra una sola vez al crearla.",
+    "apiKeyHint": "Selecciona una de tus API Keys activas.",
+    "noActiveKeys": "No tienes API Keys activas. Crea una arriba para probar.",
+    "selectKey": "Selecciona una API Key",
     "useCreatedKey": "Usar en el probador",
     "scenarios": "Escenarios sugeridos",
     "scText": "Texto simple",

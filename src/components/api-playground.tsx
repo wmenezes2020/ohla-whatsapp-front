@@ -10,9 +10,9 @@ import { Button } from './ui/button';
 import { Badge } from './ui/badge';
 import { MessageStatusBadge } from './status-badges';
 import { cn, formatDate } from '@/lib/utils';
-import { api, API_URL } from '@/lib/api';
+import { api, apiError, API_URL } from '@/lib/api';
 import { useRealtime } from '@/lib/socket';
-import type { Channel, MessageEventRow, MessageRow } from '@/lib/types';
+import type { ApiKey, Channel, MessageEventRow, MessageRow } from '@/lib/types';
 
 const TERMINAL = ['DELIVERED', 'READ', 'FAILED'];
 
@@ -46,11 +46,11 @@ const EMPTY: FormState = {
 };
 
 export function ApiPlayground({
-  apiKey,
-  onApiKeyChange,
+  keyId,
+  onKeyIdChange,
 }: {
-  apiKey: string;
-  onApiKeyChange: (v: string) => void;
+  keyId: string;
+  onKeyIdChange: (v: string) => void;
 }) {
   const t = useTranslations('playground');
   const locale = useLocale();
@@ -65,6 +65,13 @@ export function ApiPlayground({
     queryKey: ['channels'],
     queryFn: async () => (await api.get<Channel[]>('/channels')).data,
   });
+
+  const keys = useQuery({
+    queryKey: ['api-keys'],
+    queryFn: async () => (await api.get<ApiKey[]>('/api-keys')).data,
+  });
+  const activeKeys = (keys.data || []).filter((k) => k.status === 'ACTIVE');
+  const selectedKey = activeKeys.find((k) => k.id === keyId);
 
   // Live tracking of the last sent test message (GET /reports/messages/:id).
   const track = useQuery({
@@ -168,16 +175,16 @@ export function ApiPlayground({
     } catch {
       return '';
     }
-    const keyShown = apiKey.trim() ? `${apiKey.trim().slice(0, 12)}…` : 'pk_live_••••';
+    const keyShown = selectedKey ? `${selectedKey.prefix}…` : 'pk_live_••••';
     return `curl -X POST ${API_URL}/v1/messages \\
   -H "Authorization: Bearer ${keyShown}" \\
   -H "Content-Type: application/json" \\
   -d '${JSON.stringify(payload, null, 2)}'`;
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [form, apiKey]);
+  }, [form, selectedKey]);
 
   async function send() {
-    if (!apiKey.trim()) return setResult({ status: 0, body: { error: t('missingKey') } });
+    if (!keyId) return setResult({ status: 0, body: { error: t('missingKey') } });
     if (!form.to.trim()) return setResult({ status: 0, body: { error: t('missingTo') } });
     let payload: any;
     try {
@@ -189,26 +196,15 @@ export function ApiPlayground({
     setResult(null);
     setSentId(null);
     try {
-      const res = await fetch(`${API_URL}/v1/messages`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${apiKey.trim()}`,
-        },
-        body: JSON.stringify(payload),
-      });
-      let body: any = {};
-      try {
-        body = await res.json();
-      } catch {
-        /* empty body */
-      }
-      setResult({ status: res.status, body });
-      if (res.status >= 200 && res.status < 300 && body?.messageId) {
-        setSentId(body.messageId);
-      }
-    } catch {
-      setResult({ status: 0, body: { error: t('networkError') } });
+      // Dashboard test endpoint (JWT): attributes the send to the chosen key,
+      // no plaintext secret needed.
+      const { data, status } = await api.post('/messages/test', { apiKeyId: keyId, ...payload });
+      setResult({ status, body: data });
+      if (data?.messageId) setSentId(data.messageId);
+    } catch (e: any) {
+      const status = e?.response?.status ?? 0;
+      const body = e?.response?.data ?? { error: apiError(e).message };
+      setResult({ status, body });
     } finally {
       setLoading(false);
     }
@@ -244,15 +240,26 @@ export function ApiPlayground({
             <span>{t('warning')}</span>
           </div>
 
-          {/* API key */}
-          <Input
-            label={t('apiKey')}
-            type="password"
-            placeholder="pk_live_…"
-            hint={t('apiKeyHint')}
-            value={apiKey}
-            onChange={(e) => onApiKeyChange(e.target.value)}
-          />
+          {/* API key selector */}
+          {activeKeys.length === 0 ? (
+            <div className="rounded-xl border border-border bg-muted/40 p-3 text-sm text-muted-foreground">
+              {t('noActiveKeys')}
+            </div>
+          ) : (
+            <Select
+              label={t('apiKey')}
+              hint={t('apiKeyHint')}
+              value={keyId}
+              onChange={(e) => onKeyIdChange(e.target.value)}
+            >
+              <option value="">{t('selectKey')}</option>
+              {activeKeys.map((k) => (
+                <option key={k.id} value={k.id}>
+                  {k.name} ({k.prefix}…)
+                </option>
+              ))}
+            </Select>
+          )}
 
           {/* Scenarios */}
           <div>
