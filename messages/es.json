@@ -46,7 +46,7 @@
     "f_media": "URL pública o base64 del archivo. Obligatorio cuando type no es text.",
     "f_fileName": "Nombre del archivo (recomendado para document).",
     "f_mimeType": "Tipo MIME del archivo (opcional; se infiere cuando es posible).",
-    "f_replyTo": "Número al que atribuir/rutear la respuesta (opcional).",
+    "f_replyTo": "Número al que debe responder el destinatario (opcional). Si se incluye, se agrega al final del mensaje una línea 'responder a' con un enlace https://wa.me/ en el idioma de tu cuenta.",
     "f_quoted": "Identificador de un mensaje previo a citar (opcional).",
     "f_channelId": "Forzar el envío por una línea específica. Si se omite, la plataforma elige automáticamente.",
     "f_externalId": "Tu identificador único del envío, para idempotencia y conciliación.",

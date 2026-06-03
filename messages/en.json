@@ -46,7 +46,7 @@
     "f_media": "Public URL or base64 of the file. Required when type is not text.",
     "f_fileName": "File name (recommended for document).",
     "f_mimeType": "File MIME type (optional; inferred when possible).",
-    "f_replyTo": "Number to attribute/route the reply to (optional).",
+    "f_replyTo": "Number the recipient should reply to (optional). If present, a 'reply to' line with a https://wa.me/ link is appended at the end of the message, in your account language.",
     "f_quoted": "Identifier of a previous message to quote (optional).",
     "f_channelId": "Force sending through a specific line. If omitted, the platform picks one automatically.",
     "f_externalId": "Your unique identifier for the message, for idempotency and reconciliation.",
