@@ -82,12 +82,16 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   ];
 
   const adminNav: NavItem[] = [
+    { href: '/dashboard/admin', label: t('overview'), icon: LayoutDashboard },
     { href: '/dashboard/evolution-servers', label: t('evolutionServers'), icon: Server },
     { href: '/dashboard/tenants', label: t('tenants'), icon: Building2 },
+    { href: '/dashboard/admin-users', label: t('users'), icon: Users },
   ];
 
   const isActive = (href: string) =>
-    href === '/dashboard' ? pathname === '/dashboard' : pathname.startsWith(href);
+    href === '/dashboard' || href === '/dashboard/admin'
+      ? pathname === href
+      : pathname.startsWith(href);
 
   const NavLink = ({ item }: { item: NavItem }) => {
     const Icon = item.icon;

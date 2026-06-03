@@ -125,3 +125,44 @@ export interface ChannelUsage {
   rateLimitPerMinute: number;
   rateLimitPerDay: number | null;
 }
+
+export interface Metrics {
+  summary: {
+    total: number;
+    sent: number;
+    failed: number;
+    pending: number;
+    delivered: number;
+    read: number;
+    avgLatencyMs: number | null;
+    connectedChannels: number;
+    totalChannels: number;
+  };
+  byStatus: Record<string, number>;
+  channelsByStatus: Record<string, number>;
+  timeseries: Array<{ bucket: string; sent: number; failed: number; pending: number }>;
+  channels: Array<{ id: string; name: string; status: ChannelStatus; tenantId: string; sent: number }>;
+  // admin only
+  tenants?: Array<{ id: string; name: string; slug: string; status: string }>;
+  evolutionServers?: Array<{
+    id: string;
+    name: string;
+    baseUrl: string;
+    enabled: boolean;
+    reachable: boolean;
+    totalChannels: number;
+    connectedChannels: number;
+  }>;
+}
+
+export interface AdminUserRow {
+  id: string;
+  email: string;
+  fullName: string;
+  role: UserRole;
+  status: UserStatus;
+  locale: string;
+  tenantId: string | null;
+  tenantName: string | null;
+  createdAt: string;
+}

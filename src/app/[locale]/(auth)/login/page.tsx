@@ -23,7 +23,7 @@ export default function LoginPage() {
     try {
       const { data } = await api.post('/auth/login', { email, password });
       setAuth(data);
-      router.replace('/dashboard');
+      router.replace(data.user?.role === 'SUPER_ADMIN' ? '/dashboard/admin' : '/dashboard');
     } catch (err) {
       const { code } = apiError(err);
       const map: Record<string, string> = {
