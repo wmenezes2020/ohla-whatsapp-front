@@ -186,6 +186,14 @@ export function DataTable<T>({
         <div className="relative">
           <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
           <input
+            type="search"
+            name="datatable-search"
+            autoComplete="off"
+            autoCorrect="off"
+            autoCapitalize="off"
+            spellCheck={false}
+            data-1p-ignore
+            data-lpignore="true"
             value={searchInput}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder={searchPlaceholder || t('search')}
