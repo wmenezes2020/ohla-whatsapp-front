@@ -331,7 +331,12 @@
     "theme": "Tema",
     "themeLight": "Claro",
     "themeDark": "Oscuro",
-    "themeSystem": "Sistema"
+    "themeSystem": "Sistema",
+    "observation": "Observación de los mensajes",
+    "observationDesc": "Texto que se agrega en cursiva al final de cada mensaje enviado, explicando por qué el destinatario recibe mensajes por esta línea.",
+    "observationLabel": "Observación para los mensajes enviados",
+    "observationHint": "Se muestra al final de cada envío, bajo el título «Observación». Déjalo vacío para no agregar nada.",
+    "observationPlaceholder": "Ej.: Esta línea es solo para notificaciones de tu pedido."
   },
   "roles": {
     "SUPER_ADMIN": "Super Admin",

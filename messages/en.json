@@ -331,7 +331,12 @@
     "theme": "Theme",
     "themeLight": "Light",
     "themeDark": "Dark",
-    "themeSystem": "System"
+    "themeSystem": "System",
+    "observation": "Message observation",
+    "observationDesc": "Text appended in italics at the end of every sent message, explaining why the recipient is getting messages through this line.",
+    "observationLabel": "Observation for sent messages",
+    "observationHint": "Shown at the end of every send, under the title \"Note\". Leave empty to append nothing.",
+    "observationPlaceholder": "E.g.: This line is for order notifications only."
   },
   "roles": {
     "SUPER_ADMIN": "Super Admin",

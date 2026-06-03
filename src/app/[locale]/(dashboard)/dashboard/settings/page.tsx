@@ -1,12 +1,12 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useMutation } from '@tanstack/react-query';
+import { useMutation, useQuery } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
 import { PageHeader } from '@/components/page-header';
 import { Card, CardBody, CardHeader } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import { Input, Textarea } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/language-switcher';
 import { Moon, Sun } from 'lucide-react';
@@ -31,6 +31,9 @@ export default function SettingsPage() {
   const [email, setEmail] = useState('');
   const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
+  const [observation, setObservation] = useState('');
+
+  const isTenantAdmin = user?.role === 'TENANT_ADMIN';
 
   useEffect(() => {
     if (user) {
@@ -38,6 +41,31 @@ export default function SettingsPage() {
       setEmail(user.email || '');
     }
   }, [user]);
+
+  const tenantSettings = useQuery({
+    queryKey: ['tenant-settings'],
+    queryFn: async () => (await api.get('/tenant-settings')).data,
+    enabled: isTenantAdmin,
+  });
+
+  useEffect(() => {
+    if (tenantSettings.data) {
+      setObservation(tenantSettings.data.messageObservation || '');
+    }
+  }, [tenantSettings.data]);
+
+  const observationMut = useMutation({
+    mutationFn: async () =>
+      (await api.patch('/tenant-settings', { messageObservation: observation })).data,
+    onSuccess: (data) => {
+      setObservation(data.messageObservation || '');
+      toast.success(t('saved'));
+    },
+    onError: (e) => toast.error(errorMessage(e)),
+  });
+
+  const observationDirty =
+    isTenantAdmin && observation !== (tenantSettings.data?.messageObservation || '');
 
   const errorMessage = (e: unknown) => {
     const { code } = apiError(e);
@@ -193,6 +221,45 @@ export default function SettingsPage() {
             </div>
           </CardBody>
         </Card>
+
+        {/* Observation appended to every send (tenant admin only) */}
+        {isTenantAdmin && (
+          <Card className="lg:col-span-2">
+            <CardHeader>
+              <h2 className="font-semibold text-foreground">{t('observation')}</h2>
+              <p className="mt-0.5 text-xs text-muted-foreground">{t('observationDesc')}</p>
+            </CardHeader>
+            <CardBody>
+              <form
+                className="space-y-4"
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (!observationDirty) return toast.info(t('noChanges'));
+                  observationMut.mutate();
+                }}
+              >
+                <Textarea
+                  label={t('observationLabel')}
+                  hint={t('observationHint')}
+                  value={observation}
+                  onChange={(e) => setObservation(e.target.value)}
+                  maxLength={1000}
+                  rows={4}
+                  placeholder={t('observationPlaceholder')}
+                />
+                <div className="flex justify-end">
+                  <Button
+                    type="submit"
+                    loading={observationMut.isPending}
+                    disabled={!observationDirty}
+                  >
+                    {tc('save')}
+                  </Button>
+                </div>
+              </form>
+            </CardBody>
+          </Card>
+        )}
       </div>
     </div>
   );

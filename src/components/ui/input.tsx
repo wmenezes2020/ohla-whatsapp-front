@@ -1,6 +1,11 @@
 'use client';
 
-import { InputHTMLAttributes, SelectHTMLAttributes, forwardRef } from 'react';
+import {
+  InputHTMLAttributes,
+  SelectHTMLAttributes,
+  TextareaHTMLAttributes,
+  forwardRef,
+} from 'react';
 import { cn } from '@/lib/utils';
 
 interface FieldProps {
@@ -41,3 +46,24 @@ export const Select = forwardRef<
   </div>
 ));
 Select.displayName = 'Select';
+
+export const Textarea = forwardRef<
+  HTMLTextAreaElement,
+  TextareaHTMLAttributes<HTMLTextAreaElement> & FieldProps
+>(({ className, label, hint, id, ...props }, ref) => (
+  <div>
+    {label && (
+      <label htmlFor={id} className="label-base">
+        {label}
+      </label>
+    )}
+    <textarea
+      ref={ref}
+      id={id}
+      className={cn('input-base min-h-[96px] resize-y', className)}
+      {...props}
+    />
+    {hint && <p className="mt-1 text-xs text-muted-foreground">{hint}</p>}
+  </div>
+));
+Textarea.displayName = 'Textarea';
