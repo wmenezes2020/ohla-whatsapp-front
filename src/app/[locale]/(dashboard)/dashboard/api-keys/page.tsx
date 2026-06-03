@@ -12,6 +12,7 @@ import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, THead, TH, TD, TR } from '@/components/ui/table';
+import { IntegrationDocs } from '@/components/integration-docs';
 import { api, apiError } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import type { ApiKey } from '@/lib/types';
@@ -119,6 +120,9 @@ export default function ApiKeysPage() {
           </Table>
         )}
       </Card>
+
+      {/* Integration documentation */}
+      <IntegrationDocs />
 
       {/* Create dialog */}
       <Dialog open={createOpen} onClose={() => setCreateOpen(false)} title={t('create')}>
