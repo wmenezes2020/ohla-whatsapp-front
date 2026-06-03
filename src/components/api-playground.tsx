@@ -2,15 +2,19 @@
 
 import { useMemo, useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
-import { useTranslations } from 'next-intl';
-import { AlertTriangle, Check, ChevronDown, Copy, Send } from 'lucide-react';
+import { useLocale, useTranslations } from 'next-intl';
+import { AlertTriangle, Check, ChevronDown, Copy, Loader2, Send } from 'lucide-react';
 import { Card, CardBody, CardHeader } from './ui/card';
 import { Input, Select } from './ui/input';
 import { Button } from './ui/button';
 import { Badge } from './ui/badge';
-import { cn } from '@/lib/utils';
+import { MessageStatusBadge } from './status-badges';
+import { cn, formatDate } from '@/lib/utils';
 import { api, API_URL } from '@/lib/api';
-import type { Channel } from '@/lib/types';
+import { useRealtime } from '@/lib/socket';
+import type { Channel, MessageEventRow, MessageRow } from '@/lib/types';
+
+const TERMINAL = ['DELIVERED', 'READ', 'FAILED'];
 
 const TYPES = ['text', 'image', 'video', 'audio', 'document', 'sticker'];
 const CAPTION_TYPES = ['text', 'image', 'video', 'document'];
@@ -49,15 +53,38 @@ export function ApiPlayground({
   onApiKeyChange: (v: string) => void;
 }) {
   const t = useTranslations('playground');
+  const locale = useLocale();
   const [form, setForm] = useState<FormState>(EMPTY);
   const [advanced, setAdvanced] = useState(false);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<{ status: number; body: any } | null>(null);
   const [copied, setCopied] = useState(false);
+  const [sentId, setSentId] = useState<string | null>(null);
 
   const channels = useQuery({
     queryKey: ['channels'],
     queryFn: async () => (await api.get<Channel[]>('/channels')).data,
+  });
+
+  // Live tracking of the last sent test message (GET /reports/messages/:id).
+  const track = useQuery({
+    queryKey: ['pg-track', sentId],
+    enabled: !!sentId,
+    queryFn: async () =>
+      (await api.get(`/reports/messages/${sentId}`)).data as {
+        message: MessageRow;
+        events: MessageEventRow[];
+      },
+    refetchInterval: (q) => {
+      const st = (q.state.data as any)?.message?.status;
+      return st && TERMINAL.includes(st) ? false : 3000;
+    },
+  });
+
+  useRealtime({
+    'message.status': (p) => {
+      if (sentId && p.messageId === sentId) track.refetch();
+    },
   });
 
   const set = (k: keyof FormState, v: string) => setForm((f) => ({ ...f, [k]: v }));
@@ -160,6 +187,7 @@ export function ApiPlayground({
     }
     setLoading(true);
     setResult(null);
+    setSentId(null);
     try {
       const res = await fetch(`${API_URL}/v1/messages`, {
         method: 'POST',
@@ -176,6 +204,9 @@ export function ApiPlayground({
         /* empty body */
       }
       setResult({ status: res.status, body });
+      if (res.status >= 200 && res.status < 300 && body?.messageId) {
+        setSentId(body.messageId);
+      }
     } catch {
       setResult({ status: 0, body: { error: t('networkError') } });
     } finally {
@@ -330,6 +361,47 @@ export function ApiPlayground({
               <pre className="overflow-x-auto rounded-xl border border-slate-800 bg-slate-900 p-4 text-xs leading-relaxed text-slate-100">
                 <code>{JSON.stringify(result.body, null, 2)}</code>
               </pre>
+            </div>
+          )}
+
+          {/* Live tracking */}
+          {sentId && track.data && (
+            <div className="rounded-xl border border-border bg-muted/40 p-4">
+              <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-foreground">{t('tracking')}</span>
+                  <MessageStatusBadge status={track.data.message.status} />
+                  {!TERMINAL.includes(track.data.message.status) && (
+                    <Loader2 className="h-3.5 w-3.5 animate-spin text-muted-foreground" />
+                  )}
+                </div>
+                <code className="text-xs text-muted-foreground">
+                  {t('messageId')}: {sentId.slice(0, 8)}…
+                </code>
+              </div>
+
+              {track.data.message.error && (
+                <div className="mb-3 rounded-lg bg-red-500/10 p-3 text-xs text-red-600 dark:text-red-300">
+                  {JSON.stringify(track.data.message.error)}
+                </div>
+              )}
+
+              <p className="mb-2 text-xs font-medium text-muted-foreground">{t('timeline')}</p>
+              <ol className="space-y-2 border-l-2 border-border pl-4">
+                {track.data.events.map((ev) => (
+                  <li key={ev.id} className="relative">
+                    <span className="absolute -left-[1.30rem] top-1 h-2.5 w-2.5 rounded-full bg-brand-500" />
+                    <div className="flex items-center justify-between">
+                      <MessageStatusBadge status={ev.status} />
+                      <span className="text-xs text-muted-foreground">{formatDate(ev.createdAt, locale)}</span>
+                    </div>
+                  </li>
+                ))}
+              </ol>
+
+              {!TERMINAL.includes(track.data.message.status) && (
+                <p className="mt-3 text-xs text-muted-foreground">{t('trackingHint')}</p>
+              )}
             </div>
           )}
 

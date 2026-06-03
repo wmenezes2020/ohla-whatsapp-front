@@ -96,7 +96,12 @@
     "missingKey": "Paste your API Key to send.",
     "missingTo": "Enter the recipient number.",
     "invalidMetadata": "Metadata is not valid JSON.",
-    "networkError": "Could not reach the API."
+    "networkError": "Could not reach the API.",
+    "tracking": "Delivery tracking",
+    "liveStatus": "Live status",
+    "timeline": "Timeline",
+    "messageId": "Message ID",
+    "trackingHint": "Auto-refreshing until the final status…"
   },
   "metrics": {
     "messagesOverTime": "Messages over time",
