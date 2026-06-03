@@ -233,7 +233,22 @@
     "subtitle": "Your account preferences",
     "language": "Language",
     "defaultLanguage": "Organization default language",
-    "organization": "Organization"
+    "organization": "Organization",
+    "account": "Account details",
+    "accountDesc": "Edit your name and email address.",
+    "fullName": "Full name",
+    "email": "Email",
+    "role": "Role",
+    "saved": "Changes saved",
+    "password": "Password",
+    "passwordDesc": "Change your password. You'll need your current password.",
+    "currentPassword": "Current password",
+    "newPassword": "New password",
+    "changePassword": "Change password",
+    "passwordChanged": "Password updated",
+    "emailTaken": "Email is already registered",
+    "currentPasswordInvalid": "The current password is incorrect",
+    "noChanges": "No changes to save"
   },
   "roles": {
     "SUPER_ADMIN": "Super Admin",

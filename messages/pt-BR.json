@@ -233,7 +233,22 @@
     "subtitle": "Preferências da sua conta",
     "language": "Idioma",
     "defaultLanguage": "Idioma padrão da organização",
-    "organization": "Organização"
+    "organization": "Organização",
+    "account": "Dados da conta",
+    "accountDesc": "Edite seu nome e e-mail.",
+    "fullName": "Nome completo",
+    "email": "E-mail",
+    "role": "Função",
+    "saved": "Alterações salvas",
+    "password": "Senha",
+    "passwordDesc": "Altere sua senha. Você precisará da sua senha atual.",
+    "currentPassword": "Senha atual",
+    "newPassword": "Nova senha",
+    "changePassword": "Alterar senha",
+    "passwordChanged": "Senha atualizada",
+    "emailTaken": "O e-mail já está cadastrado",
+    "currentPasswordInvalid": "A senha atual está incorreta",
+    "noChanges": "Não há alterações para salvar"
   },
   "roles": {
     "SUPER_ADMIN": "Super Admin",
