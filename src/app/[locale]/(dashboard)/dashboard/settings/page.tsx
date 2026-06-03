@@ -9,7 +9,7 @@ import { Card, CardBody, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { LanguageSwitcher } from '@/components/language-switcher';
-import { Monitor, Moon, Sun } from 'lucide-react';
+import { Moon, Sun } from 'lucide-react';
 import { api, apiError } from '@/lib/api';
 import { useAuthStore } from '@/lib/auth-store';
 import { useTheme, type Theme } from '@/lib/theme';
@@ -25,7 +25,6 @@ export default function SettingsPage() {
   const themeOptions: { value: Theme; label: string; icon: typeof Sun }[] = [
     { value: 'light', label: t('themeLight'), icon: Sun },
     { value: 'dark', label: t('themeDark'), icon: Moon },
-    { value: 'system', label: t('themeSystem'), icon: Monitor },
   ];
 
   const [fullName, setFullName] = useState('');
@@ -167,7 +166,7 @@ export default function SettingsPage() {
             <p className="mt-0.5 text-xs text-muted-foreground">{t('theme')}</p>
           </CardHeader>
           <CardBody className="space-y-5">
-            <div className="grid grid-cols-3 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {themeOptions.map((opt) => {
                 const Icon = opt.icon;
                 const active = theme === opt.value;

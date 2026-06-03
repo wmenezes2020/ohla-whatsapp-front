@@ -2,63 +2,49 @@
 
 import { createContext, useContext, useEffect, useState } from 'react';
 
-export type Theme = 'light' | 'dark' | 'system';
-type Resolved = 'light' | 'dark';
+export type Theme = 'light' | 'dark';
 
 const STORAGE_KEY = 'pf-theme';
 
 interface ThemeContextValue {
   theme: Theme;
-  resolvedTheme: Resolved;
+  resolvedTheme: Theme;
   setTheme: (t: Theme) => void;
   toggle: () => void;
 }
 
 const ThemeContext = createContext<ThemeContextValue>({
-  theme: 'system',
+  theme: 'light',
   resolvedTheme: 'light',
   setTheme: () => {},
   toggle: () => {},
 });
 
-function apply(theme: Theme): Resolved {
-  const prefersDark =
-    typeof window !== 'undefined' &&
-    window.matchMedia('(prefers-color-scheme: dark)').matches;
-  const isDark = theme === 'dark' || (theme === 'system' && prefersDark);
-  document.documentElement.classList.toggle('dark', isDark);
-  return isDark ? 'dark' : 'light';
+function apply(theme: Theme) {
+  document.documentElement.classList.toggle('dark', theme === 'dark');
 }
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
-  const [theme, setThemeState] = useState<Theme>('system');
-  const [resolvedTheme, setResolved] = useState<Resolved>('light');
+  // Default is LIGHT across the whole platform; dark only if the user opts in.
+  const [theme, setThemeState] = useState<Theme>('light');
 
   useEffect(() => {
-    const stored = (localStorage.getItem(STORAGE_KEY) as Theme) || 'system';
-    setThemeState(stored);
-    setResolved(apply(stored));
-
-    const mq = window.matchMedia('(prefers-color-scheme: dark)');
-    const onChange = () => {
-      if (((localStorage.getItem(STORAGE_KEY) as Theme) || 'system') === 'system') {
-        setResolved(apply('system'));
-      }
-    };
-    mq.addEventListener('change', onChange);
-    return () => mq.removeEventListener('change', onChange);
+    const stored = localStorage.getItem(STORAGE_KEY);
+    const initial: Theme = stored === 'dark' ? 'dark' : 'light';
+    setThemeState(initial);
+    apply(initial);
   }, []);
 
   const setTheme = (t: Theme) => {
     localStorage.setItem(STORAGE_KEY, t);
     setThemeState(t);
-    setResolved(apply(t));
+    apply(t);
   };
 
-  const toggle = () => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark');
+  const toggle = () => setTheme(theme === 'dark' ? 'light' : 'dark');
 
   return (
-    <ThemeContext.Provider value={{ theme, resolvedTheme, setTheme, toggle }}>
+    <ThemeContext.Provider value={{ theme, resolvedTheme: theme, setTheme, toggle }}>
       {children}
     </ThemeContext.Provider>
   );
@@ -66,5 +52,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
 
 export const useTheme = () => useContext(ThemeContext);
 
-/** Inline script (run before hydration) to apply the theme class and avoid FOUC. */
-export const themeScript = `(function(){try{var t=localStorage.getItem('${STORAGE_KEY}')||'system';var d=t==='dark'||(t==='system'&&window.matchMedia('(prefers-color-scheme: dark)').matches);document.documentElement.classList.toggle('dark',d);}catch(e){}})();`;
+/** Inline script (run before hydration) to avoid FOUC. Default = light: only
+ * applies the dark class when the user has explicitly chosen 'dark'. */
+export const themeScript = `(function(){try{var t=localStorage.getItem('${STORAGE_KEY}');document.documentElement.classList.toggle('dark',t==='dark');}catch(e){}})();`;
