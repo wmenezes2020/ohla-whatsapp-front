@@ -75,35 +75,49 @@ export default function ChannelsPage() {
     onError: (e) => toast.error(apiError(e).message),
   });
 
-  // While the QR dialog is open, poll the live state so connection confirms even
-  // if Evolution does not deliver the connection.update webhook (Fonewhats pattern).
+  // While the QR dialog is open, poll the API every 5s (Fonewhats pattern): each
+  // poll fetches a FRESH QR and detects connection in a single request. Webhooks
+  // act as a fast path; this polling is the primary mechanism of the modal.
   useEffect(() => {
-    if (!qrChannel || connected) return;
-    const interval = setInterval(async () => {
+    if (!qrChannel) return;
+    const id = qrChannel.id;
+    let stopped = false;
+    let busy = false;
+
+    const poll = async () => {
+      if (busy || stopped) return;
+      busy = true;
       try {
-        const { data } = await api.get(`/channels/${qrChannel.id}/state`);
-        if (data.status === 'CONNECTED') {
+        const { data } = await api.get(`/channels/${id}/qr/poll`);
+        if (stopped) return;
+        if (data.connected) {
+          stopped = true;
           setConnected(true);
           setQrImage(null);
           qc.invalidateQueries({ queryKey: ['channels'] });
           setTimeout(() => setQrChannel(null), 1800);
+        } else if (data.qrCode) {
+          setQrImage(data.qrCode);
         }
       } catch {
         /* keep polling */
+      } finally {
+        busy = false;
       }
-    }, 3000);
-    return () => clearInterval(interval);
-  }, [qrChannel, connected, qc]);
+    };
+
+    poll(); // immediate
+    const interval = setInterval(poll, 5000);
+    return () => {
+      stopped = true;
+      clearInterval(interval);
+    };
+  }, [qrChannel, qc]);
 
   function openQr(channel: Channel) {
     setConnected(false);
     setQrImage(null);
     setQrChannel(channel);
-    // Trigger a fresh connect/QR.
-    api
-      .post(`/channels/${channel.id}/connect`)
-      .then(({ data }) => setQrImage(data.qrCode ?? null))
-      .catch((e) => toast.error(apiError(e).message));
   }
 
   async function action(id: string, path: string, confirmMsg?: string) {
