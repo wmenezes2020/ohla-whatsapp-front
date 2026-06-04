@@ -17,8 +17,11 @@ import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
 import { DataTable, type Column } from '@/components/ui/data-table';
 import { ChannelStatusBadge } from '@/components/status-badges';
+import { Flame } from 'lucide-react';
 import { api, apiError } from '@/lib/api';
 import { useRealtime } from '@/lib/socket';
 import type { Channel } from '@/lib/types';
@@ -32,6 +35,7 @@ export default function ChannelsPage() {
   const [name, setName] = useState('');
   const [rate, setRate] = useState(10);
   const [rateDay, setRateDay] = useState(25);
+  const [warmup, setWarmup] = useState(false);
 
   const [qrChannel, setQrChannel] = useState<Channel | null>(null);
   const [qrImage, setQrImage] = useState<string | null>(null);
@@ -64,12 +68,14 @@ export default function ChannelsPage() {
           name,
           rateLimitPerMinute: rate,
           rateLimitPerDay: rateDay,
+          warmup,
         })
       ).data,
     onSuccess: (channel) => {
       qc.invalidateQueries({ queryKey: ['channels'] });
       setCreateOpen(false);
       setName('');
+      setWarmup(false);
       openQr(channel);
     },
     onError: (e) => toast.error(apiError(e).message),
@@ -167,7 +173,14 @@ export default function ChannelsPage() {
             accessor: (c) => `${c.name} ${c.instanceName} ${c.phoneNumber || ''}`,
             render: (c) => (
               <div>
-                <p className="font-medium text-foreground">{c.name}</p>
+                <p className="flex items-center gap-2 font-medium text-foreground">
+                  {c.name}
+                  {c.warmup && (
+                    <Badge tone="warning">
+                      <Flame className="h-3 w-3" /> {t('warmupBadge')} {c.warmupInteractions}/100
+                    </Badge>
+                  )}
+                </p>
                 <p className="text-xs text-muted-foreground">{c.instanceName}</p>
               </div>
             ),
@@ -269,6 +282,14 @@ export default function ChannelsPage() {
               value={rateDay}
               min={1}
               onChange={(e) => setRateDay(Number(e.target.value))}
+            />
+          </div>
+          <div className="rounded-xl border border-border bg-muted/30 p-3">
+            <Switch
+              checked={warmup}
+              onChange={setWarmup}
+              label={t('warmupToggle')}
+              description={t('warmupToggleDesc')}
             />
           </div>
           <div className="flex justify-end gap-2 pt-2">

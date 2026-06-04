@@ -42,7 +42,31 @@ export interface Channel {
   minDelayMs: number;
   maxDelayMs: number;
   lastSentAt: string | null;
+  warmup: boolean;
+  warmupInteractions: number;
+  warmupStartedAt: string | null;
   createdAt: string;
+}
+
+export interface WarmupParticipant {
+  id: string;
+  name: string;
+  phoneNumber: string;
+  active: boolean;
+  totalReceived: number;
+  lastReceivedAt: string | null;
+  createdAt: string;
+}
+
+export interface WarmupChannel {
+  id: string;
+  name: string;
+  instanceName: string;
+  status: ChannelStatus;
+  phoneNumber: string | null;
+  warmupInteractions: number;
+  target: number;
+  warmupStartedAt: string | null;
 }
 
 export interface ApiKey {

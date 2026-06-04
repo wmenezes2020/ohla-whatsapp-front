@@ -13,6 +13,7 @@ import {
   Building2,
   LogOut,
   MessageCircle,
+  Flame,
   Menu,
   X,
 } from 'lucide-react';
@@ -76,6 +77,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const platformNav: NavItem[] = [
     { href: '/dashboard', label: t('overview'), icon: LayoutDashboard },
     { href: '/dashboard/channels', label: t('channels'), icon: Radio },
+    { href: '/dashboard/warmup', label: t('warmup'), icon: Flame },
     { href: '/dashboard/api-keys', label: t('apiKeys'), icon: KeyRound },
     ...(isAdmin ? [{ href: '/dashboard/users', label: t('users'), icon: Users }] : []),
     { href: '/dashboard/reports', label: t('reports'), icon: BarChart3 },

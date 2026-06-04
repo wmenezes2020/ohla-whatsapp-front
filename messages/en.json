@@ -169,6 +169,7 @@
   "nav": {
     "overview": "Overview",
     "channels": "Channels",
+    "warmup": "Warm-up",
     "apiKeys": "API Keys",
     "users": "Users",
     "reports": "Reports",
@@ -236,7 +237,31 @@
     "minDelay": "Min delay (ms)",
     "maxDelay": "Max delay (ms)",
     "noChannels": "You don't have channels yet. Create the first one to start sending.",
-    "server": "Evolution server"
+    "server": "Evolution server",
+    "warmupBadge": "Warming up",
+    "warmupToggle": "Warm-up mode",
+    "warmupToggleDesc": "The line won't be used for general sends; it joins the warm-up room until it reaches 100 interactions."
+  },
+  "warmup": {
+    "title": "Warm-up room",
+    "subtitle": "Warm up your new lines before using them for sending",
+    "runNow": "Run round now",
+    "runDone": "Round executed: {channels} line(s), {sent} message(s) queued",
+    "linesTitle": "Lines warming up",
+    "linesDesc": "Progress toward 100 interactions to graduate to general use",
+    "noLines": "No lines are warming up. Enable warm-up when creating a channel.",
+    "interactions": "interactions",
+    "participantsTitle": "Room participants",
+    "participantsDesc": "People who receive the lines' messages and reply daily",
+    "addParticipant": "Add participant",
+    "noParticipants": "No participants yet. Add the first one to get started.",
+    "phone": "Number",
+    "received": "Received",
+    "active": "Active",
+    "deleteConfirm": "Remove this participant from the warm-up room?",
+    "namePlaceholder": "E.g. Mary Smith",
+    "phonePlaceholder": "E.g. +1 555 123 4567",
+    "phoneHint": "Include the country code."
   },
   "apiKeys": {
     "title": "API Keys",

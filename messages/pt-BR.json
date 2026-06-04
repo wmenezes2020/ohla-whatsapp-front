@@ -169,6 +169,7 @@
   "nav": {
     "overview": "Resumo",
     "channels": "Canais",
+    "warmup": "Aquecimento",
     "apiKeys": "API Keys",
     "users": "Usuários",
     "reports": "Relatórios",
@@ -236,7 +237,31 @@
     "minDelay": "Atraso mínimo (ms)",
     "maxDelay": "Atraso máximo (ms)",
     "noChannels": "Você ainda não tem canais. Crie o primeiro para começar a enviar.",
-    "server": "Servidor Evolution"
+    "server": "Servidor Evolution",
+    "warmupBadge": "Em aquecimento",
+    "warmupToggle": "Em aquecimento",
+    "warmupToggleDesc": "A linha não será usada para envios gerais; participará da sala de aquecimento até completar 100 interações."
+  },
+  "warmup": {
+    "title": "Sala de aquecimento",
+    "subtitle": "Aqueça suas linhas novas antes de usá-las para envios",
+    "runNow": "Executar rodada agora",
+    "runDone": "Rodada executada: {channels} linha(s), {sent} mensagem(ns) na fila",
+    "linesTitle": "Linhas em aquecimento",
+    "linesDesc": "Progresso até 100 interações para graduar ao uso geral",
+    "noLines": "Nenhuma linha em aquecimento. Ative o aquecimento ao criar um canal.",
+    "interactions": "interações",
+    "participantsTitle": "Participantes da sala",
+    "participantsDesc": "Pessoas que recebem as mensagens das linhas e respondem diariamente",
+    "addParticipant": "Adicionar participante",
+    "noParticipants": "Ainda não há participantes. Adicione o primeiro para começar.",
+    "phone": "Número",
+    "received": "Recebidas",
+    "active": "Ativo",
+    "deleteConfirm": "Remover este participante da sala de aquecimento?",
+    "namePlaceholder": "Ex. Maria Silva",
+    "phonePlaceholder": "Ex. +55 11 99999 8888",
+    "phoneHint": "Inclua o código do país."
   },
   "apiKeys": {
     "title": "API Keys",
