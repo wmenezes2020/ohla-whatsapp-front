@@ -11,10 +11,20 @@ export const api = axios.create({
   headers: { 'Content-Type': 'application/json' },
 });
 
-// Attach access token.
+const SUPPORTED_LOCALES = ['es', 'en', 'pt-BR'];
+
+/** Active locale from the URL (/[locale]/...), so the backend localizes errors. */
+function currentLocale(): string {
+  if (typeof window === 'undefined') return 'es';
+  const seg = window.location.pathname.split('/')[1];
+  return SUPPORTED_LOCALES.includes(seg) ? seg : 'es';
+}
+
+// Attach access token + active language.
 api.interceptors.request.use((config) => {
   const token = useAuthStore.getState().accessToken;
   if (token) config.headers.Authorization = `Bearer ${token}`;
+  config.headers['x-lang'] = currentLocale();
   return config;
 });
 
