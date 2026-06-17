@@ -32,6 +32,7 @@ import { ChannelStatusBadge } from '@/components/status-badges';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { useRealtime } from '@/lib/socket';
+import { useDebouncedCallback } from '@/lib/use-debounced';
 import { useTheme } from '@/lib/theme';
 import type { Metrics } from '@/lib/types';
 
@@ -86,9 +87,11 @@ export function MetricsDashboard({ scope }: { scope: 'tenant' | 'admin' }) {
     refetchInterval: 30000,
   });
 
+  // Coalesce realtime bursts into a single refetch (avoids request storms / 429).
+  const refetchMetrics = useDebouncedCallback(() => query.refetch(), 3000);
   useRealtime({
-    'message.status': () => query.refetch(),
-    'channel.status': () => query.refetch(),
+    'message.status': refetchMetrics,
+    'channel.status': refetchMetrics,
   });
 
   const data = query.data;

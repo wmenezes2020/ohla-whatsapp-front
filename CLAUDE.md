@@ -93,3 +93,7 @@ metrics, status-badges) · `src/lib/*` (api, auth-store, socket, theme, types, u
 - **2026-06** i18n de errores: axios envía `x-lang`; toasts muestran `apiError(e).message` localizado.
 - **2026-06** Creado este `CLAUDE.md` como memoria local del repo (pedido del usuario: registrar todas
   las reglas y mantener memoria local en cada repositorio).
+- **2026-06-17** Fix 429 (loops): los handlers de `useRealtime` (home/métricas, canales, reports)
+  hacían `refetch()`/`invalidateQueries()` en CADA evento → ráfagas. Ahora se **debouncean** con
+  `useDebouncedCallback` (`src/lib/use-debounced.ts`, 2–3s) → una sola petición por ráfaga. Además el
+  QueryClient **no reintenta** en 429/401/403. (Backend complementa con `@SkipThrottle()` en lecturas.)

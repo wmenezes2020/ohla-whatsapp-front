@@ -24,6 +24,7 @@ import { ChannelStatusBadge } from '@/components/status-badges';
 import { Flame } from 'lucide-react';
 import { api, apiError } from '@/lib/api';
 import { useRealtime } from '@/lib/socket';
+import { useDebouncedCallback } from '@/lib/use-debounced';
 import type { Channel } from '@/lib/types';
 
 export default function ChannelsPage() {
@@ -44,12 +45,17 @@ export default function ChannelsPage() {
   const channels = useQuery({
     queryKey: ['channels'],
     queryFn: async () => (await api.get<Channel[]>('/channels')).data,
-    refetchInterval: 15000,
+    refetchInterval: 20000,
   });
 
+  // Coalesce realtime bursts (reconcile can update many channels at once).
+  const invalidateChannels = useDebouncedCallback(
+    () => qc.invalidateQueries({ queryKey: ['channels'] }),
+    2000,
+  );
   useRealtime({
     'channel.status': (p) => {
-      qc.invalidateQueries({ queryKey: ['channels'] });
+      invalidateChannels();
       if (qrChannel && p.channelId === qrChannel.id && p.status === 'CONNECTED') {
         setConnected(true);
         setQrImage(null);
