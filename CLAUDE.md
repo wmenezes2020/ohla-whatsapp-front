@@ -59,7 +59,12 @@ diseño + `darkMode: 'class'`) · TanStack Query · Zustand (`auth-store`) · so
 ## 5. Auth / API
 - `src/lib/api.ts`: axios con baseURL `${NEXT_PUBLIC_API_URL}/v1`, interceptor que adjunta el
   `accessToken` y el header `x-lang`, y refresca en 401 una vez.
-- `auth-store` (Zustand) guarda tokens + user. Roles: SUPER_ADMIN / TENANT_ADMIN / OPERATOR / VIEWER.
+- `auth-store` (Zustand) guarda tokens + user (persist `localStorage` `pf-auth`). Roles:
+  SUPER_ADMIN / TENANT_ADMIN / OPERATOR / VIEWER.
+- **Persistencia de sesión:** el `dashboard-shell` DEBE esperar `useHasHydrated()` antes de redirigir
+  a `/login` — si no, en cada reload el primer render (con `accessToken` aún null, pre-rehidratación)
+  desloga. NO acceder a `useAuthStore.persist` durante el render (SSR/prerender no tiene localStorage);
+  solo dentro de `useEffect`.
 - Mostrar/ocultar UI por rol (ej. campos de Configuración y acciones de admin solo TENANT_ADMIN).
 
 ## 6. Terminología / producto

@@ -1,5 +1,6 @@
 'use client';
 
+import { useEffect, useState } from 'react';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { AuthUser } from './types';
@@ -29,3 +30,19 @@ export const useAuthStore = create<AuthState>()(
     { name: 'pf-auth' },
   ),
 );
+
+/**
+ * True once the persisted store has rehydrated from localStorage. Guards against
+ * the SSR/first-render race where `accessToken` is momentarily null and would
+ * otherwise trigger a redirect to /login on every page reload.
+ */
+export function useHasHydrated(): boolean {
+  // Start false (SSR/prerender has no localStorage); resolve on the client only.
+  const [hydrated, setHydrated] = useState(false);
+  useEffect(() => {
+    const unsub = useAuthStore.persist.onFinishHydration(() => setHydrated(true));
+    if (useAuthStore.persist.hasHydrated()) setHydrated(true);
+    return unsub;
+  }, []);
+  return hydrated;
+}
