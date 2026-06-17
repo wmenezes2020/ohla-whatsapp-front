@@ -13,6 +13,7 @@ import { MessageStatusBadge } from '@/components/status-badges';
 import { api } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import { useRealtime } from '@/lib/socket';
+import { useDebouncedCallback } from '@/lib/use-debounced';
 import type { Channel, MessageEventRow, MessageRow } from '@/lib/types';
 
 const STATUSES = ['QUEUED', 'SENDING', 'SENT', 'DELIVERED', 'READ', 'FAILED'];
@@ -66,8 +67,13 @@ export default function ReportsPage() {
       },
   });
 
+  // Coalesce realtime bursts during active dispatch into one invalidate.
+  const invalidateMessages = useDebouncedCallback(
+    () => qc.invalidateQueries({ queryKey: ['messages'] }),
+    2000,
+  );
   useRealtime({
-    'message.status': () => qc.invalidateQueries({ queryKey: ['messages'] }),
+    'message.status': invalidateMessages,
   });
 
   return (

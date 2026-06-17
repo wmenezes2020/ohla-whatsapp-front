@@ -15,7 +15,16 @@ export function Providers({ children }: { children: React.ReactNode }) {
     () =>
       new QueryClient({
         defaultOptions: {
-          queries: { retry: 1, refetchOnWindowFocus: false, staleTime: 10_000 },
+          queries: {
+            // Don't retry rate-limited requests (429) — retrying amplifies the storm.
+            retry: (count, err: unknown) => {
+              const status = (err as { response?: { status?: number } })?.response?.status;
+              if (status === 429 || status === 401 || status === 403) return false;
+              return count < 1;
+            },
+            refetchOnWindowFocus: false,
+            staleTime: 10_000,
+          },
         },
       }),
   );
