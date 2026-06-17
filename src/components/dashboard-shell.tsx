@@ -18,7 +18,7 @@ import {
   X,
 } from 'lucide-react';
 import { Link, usePathname, useRouter } from '@/i18n/navigation';
-import { useAuthStore } from '@/lib/auth-store';
+import { useAuthStore, useHasHydrated } from '@/lib/auth-store';
 import { api } from '@/lib/api';
 import { cn } from '@/lib/utils';
 import { LanguageSwitcher } from './language-switcher';
@@ -37,10 +37,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const { user, accessToken, setUser, clear } = useAuthStore();
+  const hydrated = useHasHydrated();
   const [ready, setReady] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
+    // Wait for the persisted store to rehydrate before deciding — otherwise the
+    // first render (accessToken still null) would redirect to /login on reload.
+    if (!hydrated) return;
     if (!accessToken) {
       router.replace('/login');
       return;
@@ -56,7 +60,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         router.replace('/login');
       });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [accessToken]);
+  }, [hydrated, accessToken]);
 
   function logout() {
     clear();
