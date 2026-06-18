@@ -4,11 +4,11 @@ import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { useTranslations } from 'next-intl';
 import { toast } from 'sonner';
-import { Plus, Trash2, Wifi } from 'lucide-react';
+import { CheckCircle2, Plus, Power, Trash2, Wifi } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Dialog } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
+import { Input, Select } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { DataTable, type Column } from '@/components/ui/data-table';
 import { api, apiError } from '@/lib/api';
@@ -20,7 +20,12 @@ export default function EvolutionServersPage() {
   const qc = useQueryClient();
 
   const [open, setOpen] = useState(false);
-  const [form, setForm] = useState({ name: '', baseUrl: '', apiKey: '' });
+  const [form, setForm] = useState<{
+    name: string;
+    baseUrl: string;
+    apiKey: string;
+    engine: 'node' | 'go';
+  }>({ name: '', baseUrl: '', apiKey: '', engine: 'node' });
 
   const servers = useQuery({
     queryKey: ['evolution-servers'],
@@ -32,10 +37,22 @@ export default function EvolutionServersPage() {
     onSuccess: () => {
       qc.invalidateQueries({ queryKey: ['evolution-servers'] });
       setOpen(false);
-      setForm({ name: '', baseUrl: '', apiKey: '' });
+      setForm({ name: '', baseUrl: '', apiKey: '', engine: 'node' });
     },
     onError: (e) => toast.error(apiError(e).message),
   });
+
+  async function activate(s: EvolutionServer) {
+    if (s.isActive) return;
+    if (!window.confirm(t('activateConfirm'))) return;
+    try {
+      await api.post(`/evolution-servers/${s.id}/activate`);
+      qc.invalidateQueries({ queryKey: ['evolution-servers'] });
+      toast.success(t('activated'));
+    } catch (e) {
+      toast.error(apiError(e).message);
+    }
+  }
 
   async function test(id: string) {
     try {
@@ -92,11 +109,29 @@ export default function EvolutionServersPage() {
             render: (s) => <span className="text-muted-foreground">{s.baseUrl}</span>,
           },
           {
-            key: 'enabled',
-            header: tc('status'),
+            key: 'engine',
+            header: t('engine'),
             sortable: true,
-            accessor: (s) => (s.enabled ? 1 : 0),
-            render: (s) => <Badge tone={s.enabled ? 'success' : 'neutral'}>{s.enabled ? 'ON' : 'OFF'}</Badge>,
+            accessor: (s) => s.engine,
+            render: (s) => (
+              <Badge tone={s.engine === 'go' ? 'info' : 'neutral'}>
+                {s.engine === 'go' ? 'evolution-go' : 'Evolution'}
+              </Badge>
+            ),
+          },
+          {
+            key: 'active',
+            header: t('active'),
+            sortable: true,
+            accessor: (s) => (s.isActive ? 1 : 0),
+            render: (s) =>
+              s.isActive ? (
+                <Badge tone="success">
+                  <CheckCircle2 className="h-3 w-3" /> {t('activeBadge')}
+                </Badge>
+              ) : (
+                <span className="text-muted-foreground">—</span>
+              ),
           },
           {
             key: 'actions',
@@ -104,6 +139,11 @@ export default function EvolutionServersPage() {
             align: 'right',
             render: (s) => (
               <div className="flex items-center justify-end gap-1">
+                {!s.isActive && (
+                  <Button size="sm" variant="outline" onClick={() => activate(s)}>
+                    <Power className="h-4 w-4" /> {t('activate')}
+                  </Button>
+                )}
                 <Button size="sm" variant="outline" onClick={() => test(s.id)}>
                   <Wifi className="h-4 w-4" /> {t('test')}
                 </Button>
@@ -134,6 +174,15 @@ export default function EvolutionServersPage() {
             value={form.baseUrl}
             onChange={(e) => setForm({ ...form, baseUrl: e.target.value })}
           />
+          <Select
+            label={t('engine')}
+            hint={t('engineHint')}
+            value={form.engine}
+            onChange={(e) => setForm({ ...form, engine: e.target.value as 'node' | 'go' })}
+          >
+            <option value="node">Evolution (Node / Baileys)</option>
+            <option value="go">evolution-go (Go / whatsmeow)</option>
+          </Select>
           <Input
             label={t('apiKey')}
             type="password"
