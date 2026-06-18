@@ -240,7 +240,18 @@
     "server": "Servidor Evolution",
     "warmupBadge": "Em aquecimento",
     "warmupToggle": "Em aquecimento",
-    "warmupToggleDesc": "A linha não será usada para envios gerais; participará da sala de aquecimento até completar 100 interações."
+    "warmupToggleDesc": "A linha não será usada para envios gerais; participará da sala de aquecimento até completar as interações necessárias.",
+    "methodQr": "Código QR",
+    "methodCode": "Código por número",
+    "pairingSubtitle": "Conecte sem escanear: informe o número da linha e geramos um código de 8 dígitos.",
+    "pairingNumberLabel": "Número da linha (com código do país)",
+    "pairingNumberPlaceholder": "Ex. 573009998877",
+    "pairingHint": "Inclua o código do país, sem espaços nem símbolos.",
+    "generateCode": "Gerar código",
+    "pairingCodeTitle": "Digite este código no WhatsApp",
+    "pairingSteps": "WhatsApp › Aparelhos conectados › Conectar um aparelho › Conectar com número de telefone.",
+    "pairingWaiting": "Aguardando a conexão…",
+    "pairingFailed": "Não foi possível gerar o código. Tente novamente ou use o QR."
   },
   "warmup": {
     "title": "Sala de aquecimento",

@@ -240,7 +240,18 @@
     "server": "Evolution server",
     "warmupBadge": "Warming up",
     "warmupToggle": "Warm-up mode",
-    "warmupToggleDesc": "The line won't be used for general sends; it joins the warm-up room until it reaches 100 interactions."
+    "warmupToggleDesc": "The line won't be used for general sends; it joins the warm-up room until it reaches the required interactions.",
+    "methodQr": "QR code",
+    "methodCode": "Code by number",
+    "pairingSubtitle": "Connect without scanning: enter the line's number and we'll give you an 8-digit code.",
+    "pairingNumberLabel": "Line number (with country code)",
+    "pairingNumberPlaceholder": "E.g. 573009998877",
+    "pairingHint": "Include the country code, no spaces or symbols.",
+    "generateCode": "Generate code",
+    "pairingCodeTitle": "Enter this code in WhatsApp",
+    "pairingSteps": "WhatsApp › Linked devices › Link a device › Link with phone number.",
+    "pairingWaiting": "Waiting for the connection…",
+    "pairingFailed": "Could not generate the code. Try again or use the QR."
   },
   "warmup": {
     "title": "Warm-up room",

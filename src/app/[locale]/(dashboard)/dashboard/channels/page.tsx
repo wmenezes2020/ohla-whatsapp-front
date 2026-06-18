@@ -41,6 +41,12 @@ export default function ChannelsPage() {
   const [qrChannel, setQrChannel] = useState<Channel | null>(null);
   const [qrImage, setQrImage] = useState<string | null>(null);
   const [connected, setConnected] = useState(false);
+  // Connection method chosen at connect time: QR or pairing code (by number).
+  const [connectMode, setConnectMode] = useState<'qr' | 'code'>('qr');
+  const [pairingNumber, setPairingNumber] = useState('');
+  const [pairingCode, setPairingCode] = useState<string | null>(null);
+  const [pairingLoading, setPairingLoading] = useState(false);
+  const [pairingError, setPairingError] = useState('');
 
   const channels = useQuery({
     queryKey: ['channels'],
@@ -87,11 +93,9 @@ export default function ChannelsPage() {
     onError: (e) => toast.error(apiError(e).message),
   });
 
-  // While the QR dialog is open, poll the API every 5s (Fonewhats pattern): each
-  // poll fetches a FRESH QR and detects connection in a single request. Webhooks
-  // act as a fast path; this polling is the primary mechanism of the modal.
+  // QR mode: poll every 5s (Fonewhats pattern) for a FRESH QR + connection detection.
   useEffect(() => {
-    if (!qrChannel) return;
+    if (!qrChannel || connectMode !== 'qr') return;
     const id = qrChannel.id;
     let stopped = false;
     let busy = false;
@@ -124,11 +128,64 @@ export default function ChannelsPage() {
       stopped = true;
       clearInterval(interval);
     };
-  }, [qrChannel, qc]);
+  }, [qrChannel, connectMode, qc]);
+
+  // Code mode: after a pairing code is shown, poll the connection STATE (does not
+  // regenerate the QR/pairing) every 4s until connected.
+  useEffect(() => {
+    if (!qrChannel || connectMode !== 'code' || !pairingCode) return;
+    const id = qrChannel.id;
+    let stopped = false;
+    const poll = async () => {
+      try {
+        const { data } = await api.get(`/channels/${id}/state`);
+        if (stopped) return;
+        if (data.status === 'CONNECTED') {
+          stopped = true;
+          setConnected(true);
+          qc.invalidateQueries({ queryKey: ['channels'] });
+          setTimeout(() => setQrChannel(null), 1800);
+        }
+      } catch {
+        /* keep polling */
+      }
+    };
+    const interval = setInterval(poll, 4000);
+    return () => {
+      stopped = true;
+      clearInterval(interval);
+    };
+  }, [qrChannel, connectMode, pairingCode, qc]);
+
+  async function requestPairing() {
+    if (!qrChannel) return;
+    setPairingLoading(true);
+    setPairingError('');
+    try {
+      const { data } = await api.post(`/channels/${qrChannel.id}/pairing-code`, {
+        number: pairingNumber.replace(/\D/g, ''),
+      });
+      if (data.alreadyConnected) {
+        setConnected(true);
+        setTimeout(() => setQrChannel(null), 1800);
+        return;
+      }
+      if (data.pairingCode) setPairingCode(data.pairingCode);
+      else setPairingError(t('pairingFailed'));
+    } catch (e) {
+      setPairingError(apiError(e).message);
+    } finally {
+      setPairingLoading(false);
+    }
+  }
 
   function openQr(channel: Channel) {
     setConnected(false);
     setQrImage(null);
+    setConnectMode('qr');
+    setPairingCode(null);
+    setPairingError('');
+    setPairingNumber(channel.phoneNumber || '');
     setQrChannel(channel);
   }
 
@@ -183,7 +240,8 @@ export default function ChannelsPage() {
                   {c.name}
                   {c.warmup && (
                     <Badge tone="warning">
-                      <Flame className="h-3 w-3" /> {t('warmupBadge')} {c.warmupInteractions}/100
+                      <Flame className="h-3 w-3" /> {t('warmupBadge')} {c.warmupInteractions}/
+                      {c.warmupTarget ?? 50}
                     </Badge>
                   )}
                 </p>
@@ -309,29 +367,85 @@ export default function ChannelsPage() {
         </div>
       </Dialog>
 
-      {/* QR dialog */}
+      {/* Connect dialog — QR or pairing code (user chooses) */}
       <Dialog open={!!qrChannel} onClose={() => setQrChannel(null)} title={qrChannel?.name}>
-        <div className="flex flex-col items-center text-center">
-          {connected ? (
-            <div className="py-10">
-              <CheckCircle2 className="mx-auto h-16 w-16 text-brand-500" />
-              <p className="mt-4 font-medium text-foreground">{t('connected')}</p>
+        {connected ? (
+          <div className="py-10 text-center">
+            <CheckCircle2 className="mx-auto h-16 w-16 text-brand-500" />
+            <p className="mt-4 font-medium text-foreground">{t('connected')}</p>
+          </div>
+        ) : (
+          <div>
+            {/* Method tabs */}
+            <div className="mb-4 flex rounded-lg bg-muted p-1 text-sm font-medium">
+              <button
+                onClick={() => setConnectMode('qr')}
+                className={`flex-1 rounded-md px-3 py-1.5 transition ${
+                  connectMode === 'qr'
+                    ? 'bg-card text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {t('methodQr')}
+              </button>
+              <button
+                onClick={() => setConnectMode('code')}
+                className={`flex-1 rounded-md px-3 py-1.5 transition ${
+                  connectMode === 'code'
+                    ? 'bg-card text-foreground shadow-sm'
+                    : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {t('methodCode')}
+              </button>
             </div>
-          ) : (
-            <>
-              <p className="mb-1 font-medium text-foreground">{t('qrTitle')}</p>
-              <p className="mb-4 text-xs text-muted-foreground">{t('qrSubtitle')}</p>
-              <div className="flex h-64 w-64 items-center justify-center rounded-2xl border border-border bg-white p-3 shadow-sm">
-                {qrImage ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <img src={qrImage} alt="QR" className="h-full w-full object-contain" />
-                ) : (
-                  <p className="animate-pulse text-sm text-slate-400">{t('qrWaiting')}</p>
-                )}
+
+            {connectMode === 'qr' ? (
+              <div className="flex flex-col items-center text-center">
+                <p className="mb-1 font-medium text-foreground">{t('qrTitle')}</p>
+                <p className="mb-4 text-xs text-muted-foreground">{t('qrSubtitle')}</p>
+                <div className="flex h-64 w-64 items-center justify-center rounded-2xl border border-border bg-white p-3 shadow-sm">
+                  {qrImage ? (
+                    // eslint-disable-next-line @next/next/no-img-element
+                    <img src={qrImage} alt="QR" className="h-full w-full object-contain" />
+                  ) : (
+                    <p className="animate-pulse text-sm text-slate-400">{t('qrWaiting')}</p>
+                  )}
+                </div>
               </div>
-            </>
-          )}
-        </div>
+            ) : pairingCode ? (
+              <div className="flex flex-col items-center text-center">
+                <p className="mb-1 font-medium text-foreground">{t('pairingCodeTitle')}</p>
+                <div className="my-3 rounded-2xl border border-border bg-muted/40 px-6 py-4 font-mono text-3xl font-bold tracking-[0.3em] text-foreground">
+                  {pairingCode.length === 8 ? `${pairingCode.slice(0, 4)} ${pairingCode.slice(4)}` : pairingCode}
+                </div>
+                <p className="mb-2 text-xs text-muted-foreground">{t('pairingSteps')}</p>
+                <p className="animate-pulse text-sm text-brand-600">{t('pairingWaiting')}</p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                <p className="text-center text-xs text-muted-foreground">{t('pairingSubtitle')}</p>
+                <Input
+                  label={t('pairingNumberLabel')}
+                  value={pairingNumber}
+                  onChange={(e) => setPairingNumber(e.target.value)}
+                  placeholder={t('pairingNumberPlaceholder')}
+                  hint={t('pairingHint')}
+                  inputMode="tel"
+                />
+                {pairingError && <p className="text-xs text-red-600">{pairingError}</p>}
+                <Button
+                  onClick={requestPairing}
+                  loading={pairingLoading}
+                  disabled={pairingNumber.replace(/\D/g, '').length < 10}
+                  className="w-full"
+                >
+                  {t('generateCode')}
+                </Button>
+              </div>
+            )}
+          </div>
+        )}
       </Dialog>
     </div>
   );
