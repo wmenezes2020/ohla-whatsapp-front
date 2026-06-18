@@ -98,6 +98,10 @@ metrics, status-badges) · `src/lib/*` (api, auth-store, socket, theme, types, u
 - **2026-06** i18n de errores: axios envía `x-lang`; toasts muestran `apiError(e).message` localizado.
 - **2026-06** Creado este `CLAUDE.md` como memoria local del repo (pedido del usuario: registrar todas
   las reglas y mantener memoria local en cada repositorio).
+- **2026-06-18** Reportes programados (SDD 19): nueva página `dashboard/scheduled-reports` + ítem de
+  nav. Lista + form (asunto, destinatarios CSV, filtros [status/canal/replyTo/búsqueda], fecha, hora,
+  repetir none/daily/weekly/monthly, activo) + botón **"Generar ahora"** (`POST /report-schedules/test`)
+  y **"Enviar ahora"** por fila (`/:id/run-now`). Tipo `ReportSchedule`. i18n es/en/pt-BR. TZ America/Bogotá.
 - **2026-06-18** Conector multi-engine (SDD 18): pantalla **Servidores Evolution** (SuperAdmin) gana
   selector de **engine** (`node`/`go`) al crear, columna de engine + **botón "Activar"** (uno activo) que
   llama `POST /evolution-servers/:id/activate`. Aviso al activar: las líneas del otro motor salen del

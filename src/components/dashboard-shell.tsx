@@ -8,6 +8,7 @@ import {
   KeyRound,
   Users,
   BarChart3,
+  CalendarClock,
   Settings,
   Server,
   Building2,
@@ -85,6 +86,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     { href: '/dashboard/api-keys', label: t('apiKeys'), icon: KeyRound },
     ...(isAdmin ? [{ href: '/dashboard/users', label: t('users'), icon: Users }] : []),
     { href: '/dashboard/reports', label: t('reports'), icon: BarChart3 },
+    { href: '/dashboard/scheduled-reports', label: t('scheduledReports'), icon: CalendarClock },
     { href: '/dashboard/settings', label: t('settings'), icon: Settings },
   ];
 

@@ -102,6 +102,28 @@ export interface EvolutionServer {
   createdAt: string;
 }
 
+export interface ReportScheduleFilters {
+  status?: string;
+  channelId?: string;
+  replyTo?: string;
+  search?: string;
+}
+
+export interface ReportSchedule {
+  id: string;
+  subject: string;
+  recipients: string;
+  filters: ReportScheduleFilters;
+  timezone: string;
+  scheduledDate: string;
+  scheduledTime: string;
+  repeat: 'none' | 'daily' | 'weekly' | 'monthly';
+  enabled: boolean;
+  nextRunAt: string | null;
+  lastSentAt: string | null;
+  createdAt: string;
+}
+
 export interface TenantRow {
   id: string;
   name: string;
