@@ -27,7 +27,7 @@ export default function ReportsPage() {
 
   const [page, setPage] = useState(1);
   const [pageSize, setPageSize] = useState(25);
-  const [sortBy, setSortBy] = useState<'createdAt' | 'status' | 'toNumber'>('createdAt');
+  const [sortBy, setSortBy] = useState<'createdAt' | 'status' | 'toNumber' | 'replyTo'>('createdAt');
   const [sortDir, setSortDir] = useState<'ASC' | 'DESC'>('DESC');
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
@@ -217,6 +217,7 @@ export default function ReportsPage() {
           {
             key: 'replyTo',
             header: t('replyLine'),
+            sortable: true,
             render: (m) =>
               m.replyTo ? (
                 <span className="text-foreground">+{m.replyTo}</span>
