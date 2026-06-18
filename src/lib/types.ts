@@ -119,6 +119,7 @@ export interface MessageRow {
   status: MessageStatus;
   channelId: string | null;
   externalId: string | null;
+  replyTo: string | null;
   text: string | null;
   error: Record<string, any> | null;
   createdAt: string;

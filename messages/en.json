@@ -303,6 +303,9 @@
   "reports": {
     "title": "Reports",
     "subtitle": "History and status of your messages",
+    "export": "Export Excel",
+    "replyLine": "Reply line",
+    "replyLines": "Reply lines",
     "to": "Recipient",
     "type": "Type",
     "channel": "Channel",

@@ -303,6 +303,9 @@
   "reports": {
     "title": "Reportes",
     "subtitle": "Historial y estado de tus envíos",
+    "export": "Exportar Excel",
+    "replyLine": "Línea de respuesta",
+    "replyLines": "Líneas de respuestas",
     "to": "Destinatario",
     "type": "Tipo",
     "channel": "Canal",

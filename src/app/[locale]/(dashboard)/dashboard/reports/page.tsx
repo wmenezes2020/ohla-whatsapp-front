@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocale, useTranslations } from 'next-intl';
-import { Eye } from 'lucide-react';
+import { Download, Eye } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
 import { Select } from '@/components/ui/input';
@@ -32,30 +32,69 @@ export default function ReportsPage() {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState('');
   const [channelId, setChannelId] = useState('');
+  const [replyTo, setReplyTo] = useState('');
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [exporting, setExporting] = useState(false);
 
   const channels = useQuery({
     queryKey: ['channels'],
     queryFn: async () => (await api.get<Channel[]>('/channels')).data,
   });
 
-  const list = useQuery({
-    queryKey: ['messages', page, pageSize, sortBy, sortDir, search, status, channelId],
-    queryFn: async () =>
-      (
-        await api.get('/reports/messages', {
-          params: {
-            page,
-            pageSize,
-            sortBy,
-            sortDir,
-            search: search || undefined,
-            status: status || undefined,
-            channelId: channelId || undefined,
-          },
-        })
-      ).data as { items: MessageRow[]; total: number; page: number },
+  const replyLines = useQuery({
+    queryKey: ['reply-lines'],
+    queryFn: async () => (await api.get<string[]>('/reports/reply-lines')).data,
   });
+
+  const filters = {
+    sortBy,
+    sortDir,
+    search: search || undefined,
+    status: status || undefined,
+    channelId: channelId || undefined,
+    replyTo: replyTo || undefined,
+  };
+
+  const list = useQuery({
+    queryKey: ['messages', page, pageSize, sortBy, sortDir, search, status, channelId, replyTo],
+    queryFn: async () =>
+      (await api.get('/reports/messages', { params: { page, pageSize, ...filters } })).data as {
+        items: MessageRow[];
+        total: number;
+        page: number;
+      },
+  });
+
+  async function exportCsv() {
+    setExporting(true);
+    try {
+      const rows = (await api.get<MessageRow[]>('/reports/messages/export', { params: filters })).data;
+      const head = ['Destinatario', 'Tipo', 'Estado', 'Linea de respuesta', 'ID externo', 'Fecha'];
+      const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+      const body = rows.map((m) =>
+        [
+          `+${m.toNumber}`,
+          m.type,
+          m.status,
+          m.replyTo ? `+${m.replyTo}` : '',
+          m.externalId ?? '',
+          formatDate(m.createdAt, locale),
+        ]
+          .map(esc)
+          .join(','),
+      );
+      // BOM so Excel detects UTF-8 correctly.
+      const csv = '﻿' + [head.map(esc).join(','), ...body].join('\r\n');
+      const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `reportes-${new Date().toISOString().slice(0, 10)}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    } finally {
+      setExporting(false);
+    }
+  }
 
   const detail = useQuery({
     queryKey: ['message-detail', detailId],
@@ -78,7 +117,15 @@ export default function ReportsPage() {
 
   return (
     <div>
-      <PageHeader title={t('title')} subtitle={t('subtitle')} />
+      <PageHeader
+        title={t('title')}
+        subtitle={t('subtitle')}
+        action={
+          <Button variant="outline" onClick={exportCsv} loading={exporting}>
+            <Download className="h-4 w-4" /> {t('export')}
+          </Button>
+        }
+      />
 
       <DataTable
         data={list.data?.items || []}
@@ -132,6 +179,21 @@ export default function ReportsPage() {
                 </option>
               ))}
             </Select>
+            <Select
+              value={replyTo}
+              onChange={(e) => {
+                setReplyTo(e.target.value);
+                setPage(1);
+              }}
+              className="w-48"
+            >
+              <option value="">{t('replyLines')}</option>
+              {(replyLines.data || []).map((n) => (
+                <option key={n} value={n}>
+                  +{n}
+                </option>
+              ))}
+            </Select>
           </>
         }
         columns={[
@@ -151,6 +213,16 @@ export default function ReportsPage() {
             header: tc('status'),
             sortable: true,
             render: (m) => <MessageStatusBadge status={m.status} />,
+          },
+          {
+            key: 'replyTo',
+            header: t('replyLine'),
+            render: (m) =>
+              m.replyTo ? (
+                <span className="text-foreground">+{m.replyTo}</span>
+              ) : (
+                <span className="text-muted-foreground">—</span>
+              ),
           },
           {
             key: 'externalId',
