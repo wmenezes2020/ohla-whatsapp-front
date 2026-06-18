@@ -102,6 +102,8 @@ metrics, status-badges) · `src/lib/*` (api, auth-store, socket, theme, types, u
   líneas en aquecimiento (`(en aquecimiento — no disponible)`, key `playground.warmupOption`). Antes se
   podían elegir y el envío forzado quedaba atascado "En cola" (back: las líneas en warmup se excluyen del
   tráfico general). Evita la confusión en origen; complementa el fail-fast del backend.
+- **2026-06-18** Badge de aquecimento en Canales: el progreso usa `c.warmupTarget` (con fallback 50) en
+  vez de `/100` hardcodeado (umbral 100→50). `Channel.warmupTarget` añadido al tipo (lo expone `toPublic`).
 - **2026-06-17** Fix 429 (loops): los handlers de `useRealtime` (home/métricas, canales, reports)
   hacían `refetch()`/`invalidateQueries()` en CADA evento → ráfagas. Ahora se **debouncean** con
   `useDebouncedCallback` (`src/lib/use-debounced.ts`, 2–3s) → una sola petición por ráfaga. Además el

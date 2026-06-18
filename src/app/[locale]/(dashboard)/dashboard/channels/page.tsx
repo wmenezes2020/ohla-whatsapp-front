@@ -183,7 +183,7 @@ export default function ChannelsPage() {
                   {c.name}
                   {c.warmup && (
                     <Badge tone="warning">
-                      <Flame className="h-3 w-3" /> {t('warmupBadge')} {c.warmupInteractions}/100
+                      <Flame className="h-3 w-3" /> {t('warmupBadge')} {c.warmupInteractions}/{c.warmupTarget ?? 50}
                     </Badge>
                   )}
                 </p>

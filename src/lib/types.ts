@@ -44,6 +44,7 @@ export interface Channel {
   lastSentAt: string | null;
   warmup: boolean;
   warmupInteractions: number;
+  warmupTarget: number;
   warmupStartedAt: string | null;
   createdAt: string;
 }
