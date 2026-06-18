@@ -98,6 +98,11 @@ metrics, status-badges) · `src/lib/*` (api, auth-store, socket, theme, types, u
 - **2026-06** i18n de errores: axios envía `x-lang`; toasts muestran `apiError(e).message` localizado.
 - **2026-06** Creado este `CLAUDE.md` como memoria local del repo (pedido del usuario: registrar todas
   las reglas y mantener memoria local en cada repositorio).
+- **2026-06-18** Conector multi-engine (SDD 18): pantalla **Servidores Evolution** (SuperAdmin) gana
+  selector de **engine** (`node`/`go`) al crear, columna de engine + **botón "Activar"** (uno activo) que
+  llama `POST /evolution-servers/:id/activate`. Aviso al activar: las líneas del otro motor salen del
+  envío hasta re-parearse. Tipo `EvolutionServer` gana `engine`+`isActive`. i18n es/en/pt-BR
+  (`evolutionServers.engine/active/activate/...`).
 - **2026-06-18** Probador (API Keys): el selector de **Canal** ahora **deshabilita y etiqueta** las
   líneas en aquecimiento (`(en aquecimiento — no disponible)`, key `playground.warmupOption`). Antes se
   podían elegir y el envío forzado quedaba atascado "En cola" (back: las líneas en warmup se excluyen del

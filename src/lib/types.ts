@@ -96,6 +96,8 @@ export interface EvolutionServer {
   name: string;
   baseUrl: string;
   enabled: boolean;
+  engine: 'node' | 'go';
+  isActive: boolean;
   defaultWebhookUrl: string | null;
   createdAt: string;
 }

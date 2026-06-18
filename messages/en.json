@@ -328,7 +328,14 @@
     "unreachable": "Server unreachable",
     "deleteConfirm": "Delete this server?",
     "noServers": "No Evolution servers configured.",
-    "tokenHint": "The token is encrypted and never shown again."
+    "tokenHint": "The token is encrypted and never shown again.",
+    "engine": "Engine",
+    "engineHint": "Evolution (Node/Baileys) or evolution-go (Go/whatsmeow). Sessions do not transfer between engines.",
+    "active": "Active",
+    "activeBadge": "Active",
+    "activate": "Activate",
+    "activated": "Engine activated. All new traffic will use it.",
+    "activateConfirm": "Activate this engine? All traffic will use this server. Lines on the other engine leave the pool until re-paired here."
   },
   "tenants": {
     "title": "Accounts",

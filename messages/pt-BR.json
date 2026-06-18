@@ -328,7 +328,14 @@
     "unreachable": "Servidor inacessível",
     "deleteConfirm": "Excluir este servidor?",
     "noServers": "Nenhum servidor Evolution configurado.",
-    "tokenHint": "O token é criptografado e nunca mais é exibido."
+    "tokenHint": "O token é criptografado e nunca mais é exibido.",
+    "engine": "Motor (engine)",
+    "engineHint": "Evolution (Node/Baileys) ou evolution-go (Go/whatsmeow). Sessões não passam de um motor para o outro.",
+    "active": "Ativo",
+    "activeBadge": "Ativo",
+    "activate": "Ativar",
+    "activated": "Motor ativado. Todo o tráfego novo vai usá-lo.",
+    "activateConfirm": "Ativar este motor? Todo o tráfego usará este servidor. As linhas do outro motor saem do envio até serem re-pareadas aqui."
   },
   "tenants": {
     "title": "Contas",

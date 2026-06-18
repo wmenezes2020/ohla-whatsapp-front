@@ -328,7 +328,14 @@
     "unreachable": "Servidor inaccesible",
     "deleteConfirm": "¿Eliminar este servidor?",
     "noServers": "No hay servidores Evolution configurados.",
-    "tokenHint": "El token se cifra y nunca se vuelve a mostrar."
+    "tokenHint": "El token se cifra y nunca se vuelve a mostrar.",
+    "engine": "Motor (engine)",
+    "engineHint": "Evolution (Node/Baileys) o evolution-go (Go/whatsmeow). No mezcla sesiones entre motores.",
+    "active": "Activo",
+    "activeBadge": "Activo",
+    "activate": "Activar",
+    "activated": "Motor activado. Todo el tráfico nuevo lo usará.",
+    "activateConfirm": "¿Activar este motor? Todo el tráfico usará este servidor. Las líneas del otro motor saldrán del envío hasta re-parearse aquí."
   },
   "tenants": {
     "title": "Cuentas",
