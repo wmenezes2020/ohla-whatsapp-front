@@ -102,3 +102,7 @@ metrics, status-badges) · `src/lib/*` (api, auth-store, socket, theme, types, u
   hacían `refetch()`/`invalidateQueries()` en CADA evento → ráfagas. Ahora se **debouncean** con
   `useDebouncedCallback` (`src/lib/use-debounced.ts`, 2–3s) → una sola petición por ráfaga. Además el
   QueryClient **no reintenta** en 429/401/403. (Backend complementa con `@SkipThrottle()` en lecturas.)
+- **2026-06-17** Conectar WhatsApp por **QR o por Código** (el usuario elige al conectar): tabs en el
+  modal; modo código pide el número → `POST /channels/:id/pairing-code` → muestra el código de 8 dígitos y
+  pollea `/channels/:id/state` hasta conectar (no usa /qr/poll para no regenerar el pairing). Badge de
+  aquecimento usa `warmupTarget` (no hardcodear 100/50).
