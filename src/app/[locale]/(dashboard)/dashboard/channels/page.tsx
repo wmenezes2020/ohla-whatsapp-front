@@ -12,6 +12,7 @@ import {
   Trash2,
   CheckCircle2,
   Smartphone,
+  Pencil,
 } from 'lucide-react';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
@@ -37,6 +38,11 @@ export default function ChannelsPage() {
   const [rate, setRate] = useState(10);
   const [rateDay, setRateDay] = useState(25);
   const [warmup, setWarmup] = useState(false);
+
+  const [editChannel, setEditChannel] = useState<Channel | null>(null);
+  const [editName, setEditName] = useState('');
+  const [editRate, setEditRate] = useState(10);
+  const [editRateDay, setEditRateDay] = useState(25);
 
   const [qrChannel, setQrChannel] = useState<Channel | null>(null);
   const [qrImage, setQrImage] = useState<string | null>(null);
@@ -89,6 +95,29 @@ export default function ChannelsPage() {
       setName('');
       setWarmup(false);
       openQr(channel);
+    },
+    onError: (e) => toast.error(apiError(e).message),
+  });
+
+  function openEdit(c: Channel) {
+    setEditChannel(c);
+    setEditName(c.name);
+    setEditRate(c.rateLimitPerMinute);
+    setEditRateDay(c.rateLimitPerDay ?? 25);
+  }
+
+  const editMut = useMutation({
+    mutationFn: async () =>
+      (
+        await api.patch(`/channels/${editChannel!.id}`, {
+          name: editName,
+          rateLimitPerMinute: editRate,
+          rateLimitPerDay: editRateDay,
+        })
+      ).data,
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['channels'] });
+      setEditChannel(null);
     },
     onError: (e) => toast.error(apiError(e).message),
   });
@@ -306,6 +335,9 @@ export default function ChannelsPage() {
                     <Power className="h-4 w-4" />
                   </Button>
                 )}
+                <Button size="sm" variant="ghost" onClick={() => openEdit(c)} title={tc('edit')}>
+                  <Pencil className="h-4 w-4" />
+                </Button>
                 <Button size="sm" variant="ghost" onClick={() => action(c.id, 'restart')} title={t('restart')}>
                   <RefreshCw className="h-4 w-4" />
                 </Button>
@@ -362,6 +394,41 @@ export default function ChannelsPage() {
             </Button>
             <Button onClick={() => createMut.mutate()} loading={createMut.isPending} disabled={!name}>
               {tc('create')}
+            </Button>
+          </div>
+        </div>
+      </Dialog>
+
+      {/* Edit dialog */}
+      <Dialog open={!!editChannel} onClose={() => setEditChannel(null)} title={tc('edit')}>
+        <div className="space-y-4">
+          <Input
+            label={tc('name')}
+            value={editName}
+            onChange={(e) => setEditName(e.target.value)}
+          />
+          <div className="grid grid-cols-2 gap-3">
+            <Input
+              type="number"
+              label={t('rateLimit')}
+              value={editRate}
+              min={1}
+              onChange={(e) => setEditRate(Number(e.target.value))}
+            />
+            <Input
+              type="number"
+              label={t('rateLimitDay')}
+              value={editRateDay}
+              min={1}
+              onChange={(e) => setEditRateDay(Number(e.target.value))}
+            />
+          </div>
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setEditChannel(null)}>
+              {tc('cancel')}
+            </Button>
+            <Button onClick={() => editMut.mutate()} loading={editMut.isPending} disabled={!editName}>
+              {tc('save')}
             </Button>
           </div>
         </div>
