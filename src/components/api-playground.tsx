@@ -289,8 +289,15 @@ export function ApiPlayground({
             <Select label={t('channel')} value={form.channelId} onChange={(e) => set('channelId', e.target.value)}>
               <option value="">{t('randomChannel')}</option>
               {(channels.data || []).map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name} {c.status === 'CONNECTED' ? '✓' : `(${c.status})`}
+                // Líneas en aquecimiento no envían tráfico general (se excluyen del
+                // pool hasta graduarse) → deshabilitadas aquí para no confundir.
+                <option key={c.id} value={c.id} disabled={c.warmup}>
+                  {c.name}{' '}
+                  {c.warmup
+                    ? t('warmupOption')
+                    : c.status === 'CONNECTED'
+                      ? '✓'
+                      : `(${c.status})`}
                 </option>
               ))}
             </Select>

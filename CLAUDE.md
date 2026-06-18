@@ -98,6 +98,10 @@ metrics, status-badges) · `src/lib/*` (api, auth-store, socket, theme, types, u
 - **2026-06** i18n de errores: axios envía `x-lang`; toasts muestran `apiError(e).message` localizado.
 - **2026-06** Creado este `CLAUDE.md` como memoria local del repo (pedido del usuario: registrar todas
   las reglas y mantener memoria local en cada repositorio).
+- **2026-06-18** Probador (API Keys): el selector de **Canal** ahora **deshabilita y etiqueta** las
+  líneas en aquecimiento (`(en aquecimiento — no disponible)`, key `playground.warmupOption`). Antes se
+  podían elegir y el envío forzado quedaba atascado "En cola" (back: las líneas en warmup se excluyen del
+  tráfico general). Evita la confusión en origen; complementa el fail-fast del backend.
 - **2026-06-17** Fix 429 (loops): los handlers de `useRealtime` (home/métricas, canales, reports)
   hacían `refetch()`/`invalidateQueries()` en CADA evento → ráfagas. Ahora se **debouncean** con
   `useDebouncedCallback` (`src/lib/use-debounced.ts`, 2–3s) → una sola petición por ráfaga. Además el
