@@ -46,6 +46,7 @@ export interface Channel {
   warmupInteractions: number;
   warmupTarget: number;
   warmupStartedAt: string | null;
+  sentToday: number;
   createdAt: string;
 }
 
