@@ -315,6 +315,15 @@ export default function ChannelsPage() {
             ),
           },
           {
+            key: 'sentToday',
+            header: t('sentToday'),
+            sortable: true,
+            accessor: (c) => c.sentToday ?? 0,
+            render: (c) => (
+              <span className="font-medium text-foreground">{c.sentToday ?? 0}</span>
+            ),
+          },
+          {
             key: 'actions',
             header: tc('actions'),
             align: 'right',

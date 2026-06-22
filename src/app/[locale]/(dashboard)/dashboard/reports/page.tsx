@@ -34,6 +34,8 @@ export default function ReportsPage() {
   const [status, setStatus] = useState('');
   const [channelId, setChannelId] = useState('');
   const [replyTo, setReplyTo] = useState('');
+  const [dateFrom, setDateFrom] = useState('');
+  const [dateTo, setDateTo] = useState('');
   const [detailId, setDetailId] = useState<string | null>(null);
   const [editRow, setEditRow] = useState<MessageRow | null>(null);
   const [editForm, setEditForm] = useState({ toNumber: '', text: '', replyTo: '' });
@@ -57,10 +59,25 @@ export default function ReportsPage() {
     status: status || undefined,
     channelId: channelId || undefined,
     replyTo: replyTo || undefined,
+    // Interpreted in Bogotá time so the day boundaries match the dashboard.
+    from: dateFrom ? `${dateFrom}T00:00:00-05:00` : undefined,
+    to: dateTo ? `${dateTo}T23:59:59-05:00` : undefined,
   };
 
   const list = useQuery({
-    queryKey: ['messages', page, pageSize, sortBy, sortDir, search, status, channelId, replyTo],
+    queryKey: [
+      'messages',
+      page,
+      pageSize,
+      sortBy,
+      sortDir,
+      search,
+      status,
+      channelId,
+      replyTo,
+      dateFrom,
+      dateTo,
+    ],
     queryFn: async () =>
       (await api.get('/reports/messages', { params: { page, pageSize, ...filters } })).data as {
         items: MessageRow[];
@@ -249,6 +266,28 @@ export default function ReportsPage() {
                 </option>
               ))}
             </Select>
+            <Input
+              type="date"
+              aria-label={t('dateFrom')}
+              title={t('dateFrom')}
+              value={dateFrom}
+              onChange={(e) => {
+                setDateFrom(e.target.value);
+                setPage(1);
+              }}
+              className="w-40"
+            />
+            <Input
+              type="date"
+              aria-label={t('dateTo')}
+              title={t('dateTo')}
+              value={dateTo}
+              onChange={(e) => {
+                setDateTo(e.target.value);
+                setPage(1);
+              }}
+              className="w-40"
+            />
           </>
         }
         columns={[
