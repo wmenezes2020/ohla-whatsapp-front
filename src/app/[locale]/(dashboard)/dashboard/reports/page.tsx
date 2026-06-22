@@ -3,14 +3,15 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useLocale, useTranslations } from 'next-intl';
-import { Download, Eye } from 'lucide-react';
+import { Download, Eye, Send, Pencil, Trash2 } from 'lucide-react';
+import { toast } from 'sonner';
 import { PageHeader } from '@/components/page-header';
 import { Button } from '@/components/ui/button';
-import { Select } from '@/components/ui/input';
+import { Input, Select, Textarea } from '@/components/ui/input';
 import { Dialog } from '@/components/ui/dialog';
 import { DataTable, type Column } from '@/components/ui/data-table';
 import { MessageStatusBadge } from '@/components/status-badges';
-import { api } from '@/lib/api';
+import { api, apiError } from '@/lib/api';
 import { formatDate } from '@/lib/utils';
 import { useRealtime } from '@/lib/socket';
 import { useDebouncedCallback } from '@/lib/use-debounced';
@@ -34,6 +35,9 @@ export default function ReportsPage() {
   const [channelId, setChannelId] = useState('');
   const [replyTo, setReplyTo] = useState('');
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [editRow, setEditRow] = useState<MessageRow | null>(null);
+  const [editForm, setEditForm] = useState({ toNumber: '', text: '', replyTo: '' });
+  const [busyId, setBusyId] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
 
   const channels = useQuery({
@@ -114,6 +118,57 @@ export default function ReportsPage() {
   useRealtime({
     'message.status': invalidateMessages,
   });
+
+  const isDelivered = (s: string) => ['SENT', 'DELIVERED', 'READ'].includes(s);
+
+  async function resend(m: MessageRow) {
+    setBusyId(m.id);
+    try {
+      await api.post(`/reports/messages/${m.id}/resend`);
+      toast.success(t('resent'));
+      qc.invalidateQueries({ queryKey: ['messages'] });
+    } catch (e) {
+      toast.error(apiError(e).message);
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  async function removeRow(m: MessageRow) {
+    if (!window.confirm(t('deleteConfirm'))) return;
+    setBusyId(m.id);
+    try {
+      await api.delete(`/reports/messages/${m.id}`);
+      qc.invalidateQueries({ queryKey: ['messages'] });
+    } catch (e) {
+      toast.error(apiError(e).message);
+    } finally {
+      setBusyId(null);
+    }
+  }
+
+  function openEdit(m: MessageRow) {
+    setEditRow(m);
+    setEditForm({ toNumber: m.toNumber, text: m.text || '', replyTo: m.replyTo || '' });
+  }
+
+  async function saveEdit() {
+    if (!editRow) return;
+    setBusyId(editRow.id);
+    try {
+      await api.patch(`/reports/messages/${editRow.id}`, {
+        toNumber: editForm.toNumber,
+        text: editForm.text,
+        replyTo: editForm.replyTo || null,
+      });
+      setEditRow(null);
+      qc.invalidateQueries({ queryKey: ['messages'] });
+    } catch (e) {
+      toast.error(apiError(e).message);
+    } finally {
+      setBusyId(null);
+    }
+  }
 
   return (
     <div>
@@ -241,9 +296,35 @@ export default function ReportsPage() {
             header: tc('actions'),
             align: 'right',
             render: (m) => (
-              <Button size="sm" variant="ghost" onClick={() => setDetailId(m.id)}>
-                <Eye className="h-4 w-4" />
-              </Button>
+              <div className="flex items-center justify-end gap-1">
+                <Button size="sm" variant="ghost" onClick={() => setDetailId(m.id)} title={t('view')}>
+                  <Eye className="h-4 w-4" />
+                </Button>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => resend(m)}
+                  disabled={busyId === m.id}
+                  title={t('resend')}
+                >
+                  <Send className="h-4 w-4" />
+                </Button>
+                {!isDelivered(m.status) && (
+                  <Button size="sm" variant="ghost" onClick={() => openEdit(m)} title={tc('edit')}>
+                    <Pencil className="h-4 w-4" />
+                  </Button>
+                )}
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  className="text-red-600 hover:bg-red-500/10"
+                  onClick={() => removeRow(m)}
+                  disabled={busyId === m.id}
+                  title={tc('delete')}
+                >
+                  <Trash2 className="h-4 w-4" />
+                </Button>
+              </div>
             ),
           },
         ] as Column<MessageRow>[]}
@@ -288,6 +369,35 @@ export default function ReportsPage() {
             </div>
           </div>
         )}
+      </Dialog>
+
+      <Dialog open={!!editRow} onClose={() => setEditRow(null)} title={t('editTitle')}>
+        <div className="space-y-4">
+          <Input
+            label={t('to')}
+            value={editForm.toNumber}
+            onChange={(e) => setEditForm({ ...editForm, toNumber: e.target.value })}
+          />
+          <Input
+            label={t('replyLine')}
+            value={editForm.replyTo}
+            onChange={(e) => setEditForm({ ...editForm, replyTo: e.target.value })}
+          />
+          <Textarea
+            label={t('text')}
+            rows={5}
+            value={editForm.text}
+            onChange={(e) => setEditForm({ ...editForm, text: e.target.value })}
+          />
+          <div className="flex justify-end gap-2 pt-2">
+            <Button variant="outline" onClick={() => setEditRow(null)}>
+              {tc('cancel')}
+            </Button>
+            <Button onClick={saveEdit} loading={busyId === editRow?.id}>
+              {tc('save')}
+            </Button>
+          </div>
+        </div>
       </Dialog>
     </div>
   );
